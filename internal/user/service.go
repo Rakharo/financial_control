@@ -34,11 +34,18 @@ func (s *Service) CreateUser(name string, email string) error {
 }
 
 func (s *Service) UpdateUser(id int64, name string, email string) error {
-	// Implementar lógica de atualização de usuário
+	if id <= 0 {
+		return errors.New("ID inválido")
+	}
+	if name == "" || email == "" {
+		return errors.New("Nome e email são obrigatórios")
+	}
 	return s.repo.UpdateUser(id, name, email)
 }
 
 func (s *Service) DeleteUser(id int64) error {
-	// Implementar lógica de exclusão de usuário
+	if id <= 0 {
+		return errors.New("ID inválido")
+	}
 	return s.repo.DeleteUser(id)
 }

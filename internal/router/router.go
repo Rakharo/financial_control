@@ -11,11 +11,11 @@ func SetupRouter(userHandler *user.Handler) *gin.Engine {
 
 	users := r.Group("/users")
 	{
-		users.GET("", userHandler.GetUsers)
-		users.GET("/:id", userHandler.GetUserByID)
-		users.POST("", userHandler.CreateUser)
-		users.PUT("/:id", userHandler.UpdateUser)
-		users.DELETE("/:id", userHandler.DeleteUser)
+		users.GET("", userHandler.GetUsers)          //GET Users List
+		users.GET("/:id", userHandler.GetUserByID)   // GET User by ID
+		users.POST("", userHandler.CreateUser)       // POST Create User
+		users.PUT("/:id", userHandler.UpdateUser)    // PUT Update User
+		users.DELETE("/:id", userHandler.DeleteUser) // DELETE User
 	}
 
 	// transactions := r.Group("/transactions")
