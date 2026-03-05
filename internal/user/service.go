@@ -6,6 +6,8 @@ type UserRepository interface {
 	GetAllUsers() ([]User, error)
 	GetUserById(id int64) (*User, error)
 	CreateUser(name string, email string) error
+	UpdateUser(id int64, name string, email string) error
+	DeleteUser(id int64) error
 }
 
 type Service struct {
@@ -29,4 +31,14 @@ func (s *Service) CreateUser(name string, email string) error {
 		return errors.New("Nome e email são obrigatórios")
 	}
 	return s.repo.CreateUser(name, email)
+}
+
+func (s *Service) UpdateUser(id int64, name string, email string) error {
+	// Implementar lógica de atualização de usuário
+	return s.repo.UpdateUser(id, name, email)
+}
+
+func (s *Service) DeleteUser(id int64) error {
+	// Implementar lógica de exclusão de usuário
+	return s.repo.DeleteUser(id)
 }

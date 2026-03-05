@@ -59,3 +59,21 @@ func (r *Repository) CreateUser(name string, email string) error {
 	}
 	return nil
 }
+
+func (r *Repository) UpdateUser(id int64, name string, email string) error {
+	query := "UPDATE users SET name = ?, email = ? WHERE id = ?"
+	_, err := r.db.Exec(query, name, email, id)
+	if err != nil {
+		return fmt.Errorf("updateUser %q: %v", name, err)
+	}
+	return nil
+}
+
+func (r *Repository) DeleteUser(id int64) error {
+	query := "DELETE FROM users WHERE id = ?"
+	_, err := r.db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("deleteUser %q: %v", id, err)
+	}
+	return nil
+}

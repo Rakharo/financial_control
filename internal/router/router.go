@@ -14,6 +14,8 @@ func SetupRouter(userHandler *user.Handler) *gin.Engine {
 		users.GET("", userHandler.GetUsers)
 		users.GET("/:id", userHandler.GetUserByID)
 		users.POST("", userHandler.CreateUser)
+		users.PUT("/:id", userHandler.UpdateUser)
+		users.DELETE("/:id", userHandler.DeleteUser)
 	}
 
 	// transactions := r.Group("/transactions")
