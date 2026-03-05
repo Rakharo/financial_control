@@ -8,15 +8,15 @@ import (
 )
 
 type Handler struct {
-	repo *Repository
+	service *Service
 }
 
-func NewHandler(repo *Repository) *Handler {
-	return &Handler{repo: repo}
+func NewHandler(service *Service) *Handler {
+	return &Handler{service: service}
 }
 
 func (h *Handler) GetUsers(c *gin.Context) {
-	users, err := h.repo.GetAllUsers()
+	users, err := h.service.GetAllUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -33,7 +33,7 @@ func (h *Handler) GetUserByID(c *gin.Context) {
 		return
 	}
 
-	user, err := h.repo.GetUserByID(id)
+	user, err := h.service.GetUserById(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -55,7 +55,7 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	err := h.repo.CreateUser(u.Name, u.Email)
+	err := h.service.CreateUser(u.Name, u.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

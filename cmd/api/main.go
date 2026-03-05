@@ -2,22 +2,18 @@ package main
 
 import (
 	connection "financial_control/internal/database"
+	"financial_control/internal/router"
 	"financial_control/internal/user"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	db := connection.Connect()
 
 	userRepo := user.NewRepository(db)
-	userHandler := user.NewHandler(userRepo)
+	userService := user.NewService(userRepo)
+	userHandler := user.NewHandler(userService)
 
-	r := gin.Default()
-
-	r.GET("/users", userHandler.GetUsers)
-	r.GET("/users/:id", userHandler.GetUserByID)
-	r.POST("/users", userHandler.CreateUser)
+	r := router.SetupRouter(userHandler)
 
 	r.Run(":8080")
 }

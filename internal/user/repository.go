@@ -34,7 +34,7 @@ func (r *Repository) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
-func (r *Repository) GetUserByID(id int64) (*User, error) {
+func (r *Repository) GetUserById(id int64) (*User, error) {
 	query := "SELECT id, name, email FROM users WHERE id = ?"
 
 	row := r.db.QueryRow(query, id)
