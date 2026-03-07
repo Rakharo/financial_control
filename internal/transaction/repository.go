@@ -140,3 +140,36 @@ func (r *Repository) Delete(id uint64) error {
 
 	return err
 }
+
+func (r *Repository) GetSummaryByUser(userID uint64, month string, year string) (*SummaryDTO, error) {
+
+	query := `
+		SELECT
+			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END),0),
+			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END),0)
+		FROM transactions
+		WHERE user_id = ?
+	`
+
+	args := []interface{}{userID}
+
+	if month != "" && year != "" {
+		query += " AND MONTH(created_at) = ? AND YEAR(created_at) = ?"
+		args = append(args, month, year)
+	}
+
+	var summary SummaryDTO
+
+	err := r.db.QueryRow(query, args...).Scan(
+		&summary.TotalIncome,
+		&summary.TotalExpense,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	summary.Balance = summary.TotalIncome - summary.TotalExpense
+
+	return &summary, nil
+}

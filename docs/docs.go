@@ -168,6 +168,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/transaction/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Resumo das transações",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mês (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ano (ex: 2026)",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transaction.SummaryDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/transaction/{id}": {
             "get": {
                 "security": [
@@ -446,6 +484,20 @@ const docTemplate = `{
                 "Fixed",
                 "Variable"
             ]
+        },
+        "internal_transaction.SummaryDTO": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "total_expense": {
+                    "type": "number"
+                },
+                "total_income": {
+                    "type": "number"
+                }
+            }
         },
         "internal_transaction.TransactionRequest": {
             "type": "object",

@@ -11,6 +11,7 @@ type TransactionRepository interface {
 	Create(transaction *Transaction) error
 	Update(transaction *Transaction) error
 	Delete(id uint64) error
+	GetSummaryByUser(userID uint64, month string, year string) (*SummaryDTO, error)
 }
 
 type Service struct {
@@ -89,4 +90,8 @@ func (s *Service) Update(transactionID uint64, userID uint64, dto TransactionReq
 
 func (s *Service) Delete(id uint64) error {
 	return s.repo.Delete(id)
+}
+
+func (s *Service) GetSummary(userID uint64, month string, year string) (*SummaryDTO, error) {
+	return s.repo.GetSummaryByUser(userID, month, year)
 }

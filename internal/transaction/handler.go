@@ -168,3 +168,28 @@ func (h *Handler) DeleteTransaction(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+// GetSummary godoc
+// @Summary Resumo das transações
+// @Tags Transactions
+// @Security BearerAuth
+// @Produce json
+// @Param month query int false "Mês (1-12)"
+// @Param year query int false "Ano (ex: 2026)"
+// @Success 200 {object} SummaryDTO
+// @Router /transaction/summary [get]
+func (h *Handler) GetSummary(c *gin.Context) {
+	userIDInterface, _ := c.Get("userID")
+	userID := uint64(userIDInterface.(int64))
+
+	month := c.Query("month")
+	year := c.Query("year")
+
+	summary, err := h.service.GetSummary(userID, month, year)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, summary)
+}

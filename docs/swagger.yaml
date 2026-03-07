@@ -7,6 +7,15 @@ definitions:
     x-enum-varnames:
     - Fixed
     - Variable
+  internal_transaction.SummaryDTO:
+    properties:
+      balance:
+        type: number
+      total_expense:
+        type: number
+      total_income:
+        type: number
+    type: object
   internal_transaction.TransactionRequest:
     properties:
       amount:
@@ -271,6 +280,29 @@ paths:
       security:
       - BearerAuth: []
       summary: Atualizar transação
+      tags:
+      - Transactions
+  /transaction/summary:
+    get:
+      parameters:
+      - description: Mês (1-12)
+        in: query
+        name: month
+        type: integer
+      - description: 'Ano (ex: 2026)'
+        in: query
+        name: year
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transaction.SummaryDTO'
+      security:
+      - BearerAuth: []
+      summary: Resumo das transações
       tags:
       - Transactions
   /user:

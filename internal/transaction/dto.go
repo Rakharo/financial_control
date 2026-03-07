@@ -18,3 +18,9 @@ type TransactionResponse struct {
 	CreatedAt string    `json:"created_at,omitempty"`
 	UpdatedAt string    `json:"updated_at,omitempty"`
 }
+
+type SummaryDTO struct {
+	TotalIncome  float64 `json:"total_income"`
+	TotalExpense float64 `json:"total_expense"`
+	Balance      float64 `json:"balance"`
+}
