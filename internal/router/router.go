@@ -2,6 +2,7 @@ package router
 
 import (
 	"financial_control/internal/middleware"
+	"financial_control/internal/transaction"
 	"financial_control/internal/user"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -12,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userHandler *user.Handler) *gin.Engine {
+func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Handler) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(middleware.Logger())
@@ -39,12 +40,13 @@ func SetupRouter(userHandler *user.Handler) *gin.Engine {
 			users.DELETE("/:id", userHandler.DeleteUser) // DELETE User
 		}
 
-		// transactions := protected.Group("/transaction")
-		// {
-		// 	// transactions.GET("", transactionHandler.GetTransactions)
-		// 	// transactions.GET("/:id", transactionHandler.GetTransactionByID)
-		// 	// transactions.POST("", transactionHandler.CreateTransaction)
-		// }
+		transactions := protected.Group("/transaction")
+		{
+			transactions.GET("", transactionHandler.GetTransactions)
+			transactions.GET("/:id", transactionHandler.GetTransactionByID)
+			transactions.POST("", transactionHandler.CreateTransaction)
+			transactions.DELETE("/:id", transactionHandler.DeleteTransaction)
+		}
 	}
 
 	return r

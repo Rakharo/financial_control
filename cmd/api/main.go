@@ -12,6 +12,7 @@ package main
 import (
 	connection "financial_control/internal/database"
 	"financial_control/internal/router"
+	"financial_control/internal/transaction"
 	"financial_control/internal/user"
 )
 
@@ -22,7 +23,11 @@ func main() {
 	userService := user.NewService(userRepo)
 	userHandler := user.NewHandler(userService)
 
-	r := router.SetupRouter(userHandler)
+	transactionRepo := transaction.NewRepository(db)
+	transactionService := transaction.NewService(transactionRepo)
+	transactionHandler := transaction.NewHandler(transactionService)
+
+	r := router.SetupRouter(userHandler, transactionHandler)
 
 	r.Run(":8080")
 }

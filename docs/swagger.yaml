@@ -1,4 +1,54 @@
 definitions:
+  internal_transaction.CreateTransaction:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      frequency:
+        $ref: '#/definitions/internal_transaction.Frequency'
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/internal_transaction.Type'
+    required:
+    - amount
+    - title
+    - type
+    type: object
+  internal_transaction.Frequency:
+    enum:
+    - fixed
+    - variable
+    type: string
+    x-enum-varnames:
+    - Fixed
+    - Variable
+  internal_transaction.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      created_at:
+        type: string
+      frequency:
+        $ref: '#/definitions/internal_transaction.Frequency'
+      id:
+        type: integer
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/internal_transaction.Type'
+    type: object
+  internal_transaction.Type:
+    enum:
+    - income
+    - expense
+    type: string
+    x-enum-varnames:
+    - Income
+    - Expense
   internal_user.CreateUserRequest:
     properties:
       email:
@@ -105,6 +155,93 @@ paths:
       summary: Criar usuário
       tags:
       - Users
+  /transaction:
+    get:
+      description: Retorna todas as transações
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_transaction.TransactionResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Lista transações
+      tags:
+      - Transactions
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova transação no sistema
+      parameters:
+      - description: Transaction data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transaction.CreateTransaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Criar transação
+      tags:
+      - Transactions
+  /transaction/{id}:
+    delete:
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Deletar transação
+      tags:
+      - Transactions
+    get:
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transaction.TransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar transação por ID
+      tags:
+      - Transactions
   /user:
     get:
       description: Retorna todos os usuários

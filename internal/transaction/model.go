@@ -1,20 +1,28 @@
 package transaction
 
+import "time"
+
 type Type string
+type Frequency string
 type Category string
 
 const (
 	Income  Type = "income"
 	Expense Type = "expense"
+)
 
-	Fixed    Category = "fixed"
-	Variable Category = "variable"
+const (
+	Fixed    Frequency = "fixed"
+	Variable Frequency = "variable"
 )
 
 type Transaction struct {
-	ID       uint64
-	UserID   uint64
-	Type     Type
-	Category Category
-	Amount   float32
+	ID        uint64
+	UserID    uint64
+	Title     string
+	Amount    float64
+	Type      Type
+	Category  Category
+	Frequency Frequency
+	CreatedAt time.Time
 }
