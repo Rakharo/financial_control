@@ -1,7 +1,13 @@
 package router
 
 import (
+	"financial_control/internal/middleware"
 	"financial_control/internal/user"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "financial_control/docs"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,21 +15,37 @@ import (
 func SetupRouter(userHandler *user.Handler) *gin.Engine {
 	r := gin.Default()
 
-	users := r.Group("/users")
+	r.Use(middleware.Logger())
+
+	// SWAGGER
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	//ROTAS PÚBLICAS
+	public := r.Group("/")
 	{
-		users.GET("", userHandler.GetUsers)          //GET Users List
-		users.GET("/:id", userHandler.GetUserByID)   // GET User by ID
-		users.POST("", userHandler.CreateUser)       // POST Create User
-		users.PUT("/:id", userHandler.UpdateUser)    // PUT Update User
-		users.DELETE("/:id", userHandler.DeleteUser) // DELETE User
+		public.POST("/login", userHandler.Login)
+		public.POST("/register", userHandler.CreateUser)
 	}
 
-	// transactions := r.Group("/transactions")
-	// {
-	// 	// transactions.GET("", transactionHandler.GetTransactions)
-	// 	// transactions.GET("/:id", transactionHandler.GetTransactionByID)
-	// 	// transactions.POST("", transactionHandler.CreateTransaction)
-	// }
+	//ROTAS PROTEGIDAS
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		users := protected.Group("/user")
+		{
+			users.GET("", userHandler.GetUsers)          //GET Users List
+			users.GET("/:id", userHandler.GetUserByID)   // GET User by ID
+			users.PUT("/:id", userHandler.UpdateUser)    // PUT Update User
+			users.DELETE("/:id", userHandler.DeleteUser) // DELETE User
+		}
+
+		// transactions := protected.Group("/transaction")
+		// {
+		// 	// transactions.GET("", transactionHandler.GetTransactions)
+		// 	// transactions.GET("/:id", transactionHandler.GetTransactionByID)
+		// 	// transactions.POST("", transactionHandler.CreateTransaction)
+		// }
+	}
 
 	return r
 }

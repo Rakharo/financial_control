@@ -1,5 +1,14 @@
 package main
 
+// @title Financial Control API
+// @version 1.0
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description API para controle financeiro
+// @host localhost:8080
+// @BasePath /
+
 import (
 	connection "financial_control/internal/database"
 	"financial_control/internal/router"

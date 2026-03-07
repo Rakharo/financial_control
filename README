@@ -1,0 +1,6 @@
+
+//Comando para atualizar swagger depois de atualizações no código:
+swag init -g cmd/api/main.go --parseDependency --parseInternal 
+
+//Comando para rodar o programa:
+go run cmd/api/main.go
