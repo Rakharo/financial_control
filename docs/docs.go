@@ -151,7 +151,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_transaction.CreateTransaction"
+                            "$ref": "#/definitions/internal_transaction.TransactionRequest"
                         }
                     }
                 ],
@@ -200,6 +200,52 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Atualizar transação",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Transaction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Transaction data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transaction.TransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -390,7 +436,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "internal_transaction.CreateTransaction": {
+        "internal_transaction.Frequency": {
+            "type": "string",
+            "enum": [
+                "fixed",
+                "variable"
+            ],
+            "x-enum-varnames": [
+                "Fixed",
+                "Variable"
+            ]
+        },
+        "internal_transaction.TransactionRequest": {
             "type": "object",
             "required": [
                 "amount",
@@ -415,17 +472,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_transaction.Frequency": {
-            "type": "string",
-            "enum": [
-                "fixed",
-                "variable"
-            ],
-            "x-enum-varnames": [
-                "Fixed",
-                "Variable"
-            ]
-        },
         "internal_transaction.TransactionResponse": {
             "type": "object",
             "properties": {
@@ -449,6 +495,9 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/internal_transaction.Type"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },

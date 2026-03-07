@@ -24,5 +24,6 @@ type Transaction struct {
 	Type      Type
 	Category  Category
 	Frequency Frequency
-	CreatedAt time.Time
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
 }

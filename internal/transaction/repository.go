@@ -38,6 +38,7 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
 			&transaction.Category,
 			&transaction.Frequency,
 			&transaction.CreatedAt,
+			&transaction.UpdatedAt,
 		)
 
 		if err != nil {
@@ -65,6 +66,7 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 		&transaction.Category,
 		&transaction.Frequency,
 		&transaction.CreatedAt,
+		&transaction.UpdatedAt,
 	)
 
 	if err != nil {
@@ -104,6 +106,28 @@ func (r *Repository) Create(transaction *Transaction) error {
 	}
 
 	transaction.ID = uint64(id)
+
+	return nil
+}
+
+func (r *Repository) Update(transaction *Transaction) error {
+	query := `UPDATE transactions SET title = ?, amount = ?, type = ?, category = ?, frequency = ?, updated_at = ? WHERE id = ? AND user_id = ?`
+
+	_, err := r.db.Exec(
+		query,
+		transaction.Title,
+		transaction.Amount,
+		transaction.Type,
+		transaction.Category,
+		transaction.Frequency,
+		transaction.UpdatedAt,
+		transaction.ID,
+		transaction.UserID,
+	)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

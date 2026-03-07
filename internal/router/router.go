@@ -46,6 +46,7 @@ func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Hand
 			transactions.GET("/:id", transactionHandler.GetTransactionByID)
 			transactions.POST("", transactionHandler.CreateTransaction)
 			transactions.DELETE("/:id", transactionHandler.DeleteTransaction)
+			transactions.PUT("/:id", transactionHandler.UpdateTransaction)
 		}
 	}
 

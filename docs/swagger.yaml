@@ -1,5 +1,13 @@
 definitions:
-  internal_transaction.CreateTransaction:
+  internal_transaction.Frequency:
+    enum:
+    - fixed
+    - variable
+    type: string
+    x-enum-varnames:
+    - Fixed
+    - Variable
+  internal_transaction.TransactionRequest:
     properties:
       amount:
         type: number
@@ -16,14 +24,6 @@ definitions:
     - title
     - type
     type: object
-  internal_transaction.Frequency:
-    enum:
-    - fixed
-    - variable
-    type: string
-    x-enum-varnames:
-    - Fixed
-    - Variable
   internal_transaction.TransactionResponse:
     properties:
       amount:
@@ -40,6 +40,8 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/internal_transaction.Type'
+      updated_at:
+        type: string
     type: object
   internal_transaction.Type:
     enum:
@@ -182,7 +184,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_transaction.CreateTransaction'
+          $ref: '#/definitions/internal_transaction.TransactionRequest'
       produces:
       - application/json
       responses:
@@ -240,6 +242,35 @@ paths:
       security:
       - BearerAuth: []
       summary: Buscar transação por ID
+      tags:
+      - Transactions
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Transaction data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transaction.TransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Atualizar transação
       tags:
       - Transactions
   /user:

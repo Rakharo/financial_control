@@ -78,12 +78,12 @@ func (h *Handler) GetTransactionByID(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body CreateTransaction true "Transaction data"
+// @Param request body TransactionRequest true "Transaction data"
 // @Success 201 {object} map[string]string
 // @Router /transaction [post]
 func (h *Handler) CreateTransaction(c *gin.Context) {
 
-	var dto CreateTransaction
+	var dto TransactionRequest
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -101,6 +101,44 @@ func (h *Handler) CreateTransaction(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, transaction)
+}
+
+// UpdateTransaction godoc
+// @Summary Atualizar transação
+// @Tags Transactions
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Transaction ID"
+// @Param request body TransactionRequest true "Transaction data"
+// @Success 200 {object} map[string]string
+// @Router /transaction/{id} [put]
+func (h *Handler) UpdateTransaction(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.ParseUint(idParam, 10, 64)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	var dto TransactionRequest
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
+		return
+	}
+
+	userIDInterface, _ := c.Get("userID")
+	userID := uint64(userIDInterface.(int64))
+
+	err = h.service.Update(id, userID, dto)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Transaction updated successfully"})
 }
 
 // DeleteTransaction godoc
