@@ -1,6 +1,7 @@
 package router
 
 import (
+	"financial_control/internal/auth"
 	"financial_control/internal/middleware"
 	"financial_control/internal/transaction"
 	"financial_control/internal/user"
@@ -14,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Handler) *gin.Engine {
+func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Handler, authHandler *auth.Handler) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(middleware.Logger())
@@ -31,8 +32,9 @@ func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Hand
 	//ROTAS PÚBLICAS
 	public := r.Group("/")
 	{
-		public.POST("/login", userHandler.Login)
-		public.POST("/register", userHandler.CreateUser)
+		r.POST("/auth/login", authHandler.Login)
+		public.POST("/auth/register", userHandler.CreateUser)
+		public.POST("/auth/refresh", authHandler.RefreshToken)
 	}
 
 	//ROTAS PROTEGIDAS

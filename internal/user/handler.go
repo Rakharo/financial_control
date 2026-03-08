@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"financial_control/internal/auth"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,51 +13,6 @@ type Handler struct {
 
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
-}
-
-// Login godoc
-// @Summary Login de usuário
-// @Description Autentica o usuário e retorna JWT
-// @Tags Auth
-// @Accept json
-// @Produce json
-// @Param request body LoginRequest true "Login credentials"
-// @Success 200 {object} LoginResponse
-// @Failure 401 {object} map[string]string
-// @Router /login [post]
-func (h *Handler) Login(c *gin.Context) {
-	var req LoginRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
-		return
-	}
-
-	user, err := h.service.Login(req.Login, req.Password)
-
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-		return
-	}
-
-	token, err := auth.GenerateToken(user.ID)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
-		return
-	}
-
-	response := LoginResponse{
-		Token: token,
-		User: UserResponse{
-			ID:    user.ID,
-			Name:  user.Name,
-			Email: user.Email,
-			Login: user.Login,
-		},
-	}
-
-	c.JSON(http.StatusOK, response)
 }
 
 // GetUsers godoc
@@ -127,7 +80,6 @@ func (h *Handler) GetUserByID(c *gin.Context) {
 // @Summary Criar usuário
 // @Description Cria um novo usuário no sistema
 // @Tags Users
-// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param request body CreateUserRequest true "User data"
