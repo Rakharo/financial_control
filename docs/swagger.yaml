@@ -230,7 +230,7 @@ paths:
       summary: Refresh do token do usuario
       tags:
       - Auth
-  /categories:
+  /category:
     get:
       description: Retorna todas as categorias disponíveis para o usuário (categorias
         próprias + categorias padrão do sistema)
@@ -289,7 +289,7 @@ paths:
       summary: Criar categoria
       tags:
       - Categories
-  /categories/{id}:
+  /category/{id}:
     delete:
       description: Remove uma categoria criada pelo usuário
       parameters:

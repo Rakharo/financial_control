@@ -92,7 +92,7 @@
                 }
             }
         },
-        "/categories": {
+        "/category": {
             "get": {
                 "security": [
                     {
@@ -184,7 +184,7 @@
                 }
             }
         },
-        "/categories/{id}": {
+        "/category/{id}": {
             "get": {
                 "security": [
                     {

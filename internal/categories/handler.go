@@ -23,7 +23,7 @@ func NewHandler(service *Service) *Handler {
 // @Produce json
 // @Success 200 {array} Category
 // @Failure 500 {object} map[string]string
-// @Router /categories [get]
+// @Router /category [get]
 func (h *Handler) GetAll(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")
@@ -49,7 +49,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /categories/{id} [get]
+// @Router /category/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 
 	idParam := c.Param("id")
@@ -87,7 +87,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 // @Success 201 {object} Category
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /categories [post]
+// @Router /category [post]
 func (h *Handler) Create(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")
@@ -119,7 +119,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param category body CategoryRequest true "Dados atualizados da categoria"
 // @Success 204
 // @Failure 400 {object} map[string]string
-// @Router /categories/{id} [put]
+// @Router /category/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")
@@ -153,7 +153,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Param id path int true "ID da categoria"
 // @Success 204
 // @Failure 400 {object} map[string]string
-// @Router /categories/{id} [delete]
+// @Router /category/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")

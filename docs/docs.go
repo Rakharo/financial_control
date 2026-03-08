@@ -101,7 +101,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/categories": {
+        "/category": {
             "get": {
                 "security": [
                     {
@@ -193,7 +193,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/categories/{id}": {
+        "/category/{id}": {
             "get": {
                 "security": [
                     {
