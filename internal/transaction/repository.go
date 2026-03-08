@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"database/sql"
+	category "financial_control/internal/categories"
 )
 
 type Repository struct {
@@ -14,7 +15,24 @@ func NewRepository(db *sql.DB) *Repository {
 
 func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
 
-	query := `SELECT * FROM transactions WHERE user_id = ?`
+	query := `
+	SELECT
+	t.id,
+	t.user_id,
+	t.title,
+	t.amount,
+	t.type,
+	t.frequency,
+	t.created_at,
+	t.updated_at,
+	c.id,
+	c.name,
+	c.type,
+	c.created_at,
+	c.updated_at
+	FROM transactions t
+	LEFT JOIN categories c ON c.id = t.category_id
+	WHERE t.user_id = ?`
 
 	rows, err := r.db.Query(query, userID)
 
@@ -28,6 +46,7 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
 
 	for rows.Next() {
 		var transaction Transaction
+		var category category.Category
 
 		err := rows.Scan(
 			&transaction.ID,
@@ -35,11 +54,17 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
 			&transaction.Title,
 			&transaction.Amount,
 			&transaction.Type,
-			&transaction.Category,
 			&transaction.Frequency,
 			&transaction.CreatedAt,
 			&transaction.UpdatedAt,
+			&category.ID,
+			&category.Name,
+			&category.Type,
+			&category.CreatedAt,
+			&category.UpdatedAt,
 		)
+
+		transaction.Category = &category
 
 		if err != nil {
 			return nil, err
@@ -53,9 +78,28 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
 
 func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 
-	query := `SELECT * FROM transactions WHERE id = ? AND user_id = ?`
+	query := `
+	SELECT
+	t.id,
+	t.user_id,
+	t.title,
+	t.amount,
+	t.type,
+	t.frequency,
+	t.created_at,
+	t.updated_at,
+	c.id,
+	c.name,
+	c.type,
+	c.created_at,
+	c.updated_at
+	FROM transactions t
+	LEFT JOIN categories c ON c.id = t.category_id
+	WHERE t.id = ? AND t.user_id = ?
+	`
 
 	var transaction Transaction
+	var category category.Category
 
 	err := r.db.QueryRow(query, id, userID).Scan(
 		&transaction.ID,
@@ -63,15 +107,21 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 		&transaction.Title,
 		&transaction.Amount,
 		&transaction.Type,
-		&transaction.Category,
 		&transaction.Frequency,
 		&transaction.CreatedAt,
 		&transaction.UpdatedAt,
+		&category.ID,
+		&category.Name,
+		&category.Type,
+		&category.CreatedAt,
+		&category.UpdatedAt,
 	)
 
 	if err != nil {
 		return nil, err
 	}
+
+	transaction.Category = &category
 
 	return &transaction, nil
 }
@@ -79,10 +129,16 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 func (r *Repository) Create(transaction *Transaction) error {
 
 	query := `
-		INSERT INTO transactions 
-		(user_id, title, amount, type, category, frequency, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO transactions 
+	(user_id, title, amount, type, category_id, frequency, created_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
+
+	var categoryID interface{}
+
+	if transaction.Category != nil {
+		categoryID = transaction.Category.ID
+	}
 
 	result, err := r.db.Exec(
 		query,
@@ -90,7 +146,7 @@ func (r *Repository) Create(transaction *Transaction) error {
 		transaction.Title,
 		transaction.Amount,
 		transaction.Type,
-		transaction.Category,
+		categoryID,
 		transaction.Frequency,
 		transaction.CreatedAt,
 	)
@@ -111,25 +167,32 @@ func (r *Repository) Create(transaction *Transaction) error {
 }
 
 func (r *Repository) Update(transaction *Transaction) error {
-	query := `UPDATE transactions SET title = ?, amount = ?, type = ?, category = ?, frequency = ?, updated_at = ? WHERE id = ? AND user_id = ?`
+
+	query := `
+	UPDATE transactions 
+	SET title = ?, amount = ?, type = ?, category_id = ?, frequency = ?, updated_at = ?
+	WHERE id = ? AND user_id = ?
+	`
+
+	var categoryID interface{}
+
+	if transaction.Category != nil {
+		categoryID = transaction.Category.ID
+	}
 
 	_, err := r.db.Exec(
 		query,
 		transaction.Title,
 		transaction.Amount,
 		transaction.Type,
-		transaction.Category,
+		categoryID,
 		transaction.Frequency,
 		transaction.UpdatedAt,
 		transaction.ID,
 		transaction.UserID,
 	)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (r *Repository) Delete(id uint64) error {

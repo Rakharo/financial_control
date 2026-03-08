@@ -11,6 +11,7 @@ package main
 
 import (
 	"financial_control/internal/auth"
+	category "financial_control/internal/categories"
 	connection "financial_control/internal/database"
 	"financial_control/internal/router"
 	"financial_control/internal/transaction"
@@ -26,11 +27,15 @@ func main() {
 
 	authHandler := auth.NewHandler(userService)
 
+	categoryRepo := category.NewRepository(db)
+	categoryService := category.NewService(categoryRepo)
+	categoryHandler := category.NewHandler(categoryService)
+
 	transactionRepo := transaction.NewRepository(db)
-	transactionService := transaction.NewService(transactionRepo)
+	transactionService := transaction.NewService(transactionRepo, categoryRepo)
 	transactionHandler := transaction.NewHandler(transactionService)
 
-	r := router.SetupRouter(userHandler, transactionHandler, authHandler)
+	r := router.SetupRouter(userHandler, transactionHandler, authHandler, categoryHandler)
 
 	r.Run(":8080")
 }

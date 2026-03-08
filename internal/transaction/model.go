@@ -1,10 +1,12 @@
 package transaction
 
-import "time"
+import (
+	category "financial_control/internal/categories"
+	"time"
+)
 
 type Type string
 type Frequency string
-type Category string
 
 const (
 	Income  Type = "income"
@@ -22,7 +24,7 @@ type Transaction struct {
 	Title     string
 	Amount    float64
 	Type      Type
-	Category  Category
+	Category  *category.Category
 	Frequency Frequency
 	CreatedAt *time.Time
 	UpdatedAt *time.Time

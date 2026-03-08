@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"errors"
+	category "financial_control/internal/categories"
 	"time"
 )
 
@@ -13,13 +14,20 @@ type TransactionRepository interface {
 	Delete(id uint64) error
 	GetSummaryByUser(userID uint64, month string, year string) (*SummaryDTO, error)
 }
-
-type Service struct {
-	repo TransactionRepository
+type CategoryRepository interface {
+	GetByID(id uint64) (*category.Category, error)
 }
 
-func NewService(repo TransactionRepository) *Service {
-	return &Service{repo: repo}
+type Service struct {
+	repo         TransactionRepository
+	categoryRepo CategoryRepository
+}
+
+func NewService(repo TransactionRepository, categoryRepo CategoryRepository) *Service {
+	return &Service{
+		repo:         repo,
+		categoryRepo: categoryRepo,
+	}
 }
 
 func (s *Service) GetAll(userID uint64) ([]Transaction, error) {
@@ -32,6 +40,21 @@ func (s *Service) GetByID(id uint64, userID uint64) (*Transaction, error) {
 
 func (s *Service) Create(userID uint64, dto TransactionRequest) (*Transaction, error) {
 
+	category, err := s.categoryRepo.GetByID(dto.CategoryID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if category == nil {
+		return nil, errors.New("categoria não encontrada")
+	}
+
+	// categoria de outro usuário
+	if category.UserID != nil && *category.UserID != userID {
+		return nil, errors.New("categoria inválida")
+	}
+
 	now := time.Now()
 
 	transaction := Transaction{
@@ -39,12 +62,12 @@ func (s *Service) Create(userID uint64, dto TransactionRequest) (*Transaction, e
 		Title:     dto.Title,
 		Amount:    dto.Amount,
 		Type:      dto.Type,
-		Category:  dto.Category,
+		Category:  category,
 		Frequency: dto.Frequency,
 		CreatedAt: &now,
 	}
 
-	err := s.repo.Create(&transaction)
+	err = s.repo.Create(&transaction)
 
 	if err != nil {
 		return nil, err
@@ -54,6 +77,7 @@ func (s *Service) Create(userID uint64, dto TransactionRequest) (*Transaction, e
 }
 
 func (s *Service) Update(transactionID uint64, userID uint64, dto TransactionRequest) error {
+
 	transaction, err := s.repo.GetByID(transactionID, userID)
 
 	if err != nil {
@@ -61,31 +85,33 @@ func (s *Service) Update(transactionID uint64, userID uint64, dto TransactionReq
 	}
 
 	if transaction == nil {
-		return errors.New("Transação não encontrada")
+		return errors.New("transação não encontrada")
 	}
 
-	if userID == 0 {
-		return errors.New("Usuário não encontrado")
+	category, err := s.categoryRepo.GetByID(dto.CategoryID)
+
+	if err != nil {
+		return err
 	}
 
-	if userID != transaction.UserID {
-		return errors.New("Usuário não autorizado")
+	if category == nil {
+		return errors.New("categoria não encontrada")
 	}
 
-	if dto.Title == "" || dto.Amount <= 0 || dto.Type == "" || dto.Category == "" || dto.Frequency == "" {
-		return errors.New("Campos obrigatórios não preenchidos")
+	if category.UserID != nil && *category.UserID != userID {
+		return errors.New("categoria inválida")
 	}
 
 	now := time.Now()
+
 	transaction.Title = dto.Title
 	transaction.Amount = dto.Amount
 	transaction.Type = dto.Type
-	transaction.Category = dto.Category
+	transaction.Category = category
 	transaction.Frequency = dto.Frequency
 	transaction.UpdatedAt = &now
 
 	return s.repo.Update(transaction)
-
 }
 
 func (s *Service) Delete(id uint64) error {

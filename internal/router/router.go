@@ -2,6 +2,7 @@ package router
 
 import (
 	"financial_control/internal/auth"
+	category "financial_control/internal/categories"
 	"financial_control/internal/middleware"
 	"financial_control/internal/transaction"
 	"financial_control/internal/user"
@@ -15,7 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Handler, authHandler *auth.Handler) *gin.Engine {
+func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Handler, authHandler *auth.Handler, categoryHandler *category.Handler) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(middleware.Logger())
@@ -59,6 +60,15 @@ func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Hand
 			transactions.PUT("/:id", transactionHandler.UpdateTransaction)
 
 			transactions.GET("/summary", transactionHandler.GetSummary)
+		}
+
+		categories := protected.Group("/category")
+		{
+			categories.GET("", categoryHandler.GetAll)
+			categories.GET("/:id", categoryHandler.GetByID)
+			categories.POST("", categoryHandler.Create)
+			categories.PUT("/:id", categoryHandler.Update)
+			categories.DELETE("/:id", categoryHandler.Delete)
 		}
 	}
 
