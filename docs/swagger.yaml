@@ -1,4 +1,38 @@
 definitions:
+  financial_control_internal_user.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_auth.LoginRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_auth.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/financial_control_internal_user.UserResponse'
+    type: object
+  internal_auth.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
   internal_transaction.Frequency:
     enum:
     - fixed
@@ -71,20 +105,6 @@ definitions:
       password:
         type: string
     type: object
-  internal_user.LoginRequest:
-    properties:
-      login:
-        type: string
-      password:
-        type: string
-    type: object
-  internal_user.LoginResponse:
-    properties:
-      token:
-        type: string
-      user:
-        $ref: '#/definitions/internal_user.UserResponse'
-    type: object
   internal_user.User:
     properties:
       email:
@@ -112,7 +132,7 @@ info:
   title: Financial Control API
   version: "1.0"
 paths:
-  /login:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -123,14 +143,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_user.LoginRequest'
+          $ref: '#/definitions/internal_auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_user.LoginResponse'
+            $ref: '#/definitions/internal_auth.LoginResponse'
         "401":
           description: Unauthorized
           schema:
@@ -138,6 +158,34 @@ paths:
               type: string
             type: object
       summary: Login de usuário
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: atualiza o token do usuario com nova data de expieração
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh do token do usuario
       tags:
       - Auth
   /register:
@@ -161,8 +209,6 @@ paths:
             additionalProperties:
               type: string
             type: object
-      security:
-      - BearerAuth: []
       summary: Criar usuário
       tags:
       - Users
@@ -394,6 +440,26 @@ paths:
       security:
       - BearerAuth: []
       summary: Atualizar usuário
+      tags:
+      - Users
+  /user/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_user.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retorna usuário logado
       tags:
       - Users
 securityDefinitions:

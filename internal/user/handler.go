@@ -15,6 +15,47 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
+// GetMe godoc
+// @Summary Retorna usuário logado
+// @Tags Users
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} UserResponse
+// @Failure 401 {object} map[string]string
+// @Router /user/me [get]
+func (h *Handler) GetMe(c *gin.Context) {
+
+	userIDValue, exists := c.Get("userID")
+
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	userID := userIDValue.(int64)
+
+	user, err := h.service.GetUserById(userID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	response := UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Login: user.Login,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 // GetUsers godoc
 // @Summary Lista usuários
 // @Description Retorna todos os usuários

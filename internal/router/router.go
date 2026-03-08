@@ -43,6 +43,7 @@ func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Hand
 	{
 		users := protected.Group("/user")
 		{
+			users.GET("/me", userHandler.GetMe)
 			users.GET("", userHandler.GetUsers)          //GET Users List
 			users.GET("/:id", userHandler.GetUserByID)   // GET User by ID
 			users.PUT("/:id", userHandler.UpdateUser)    // PUT Update User
