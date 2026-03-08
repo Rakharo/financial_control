@@ -1,4 +1,19 @@
 definitions:
+  financial_control_internal_categories.CategoryResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   financial_control_internal_user.UserResponse:
     properties:
       email:
@@ -33,6 +48,33 @@ definitions:
       refresh_token:
         type: string
     type: object
+  internal_categories.Category:
+    properties:
+      createdAt:
+        type: string
+      id:
+        format: int64
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        format: int64
+        type: integer
+    type: object
+  internal_categories.CategoryRequest:
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+    required:
+    - name
+    - type
+    type: object
   internal_transaction.Frequency:
     enum:
     - fixed
@@ -54,8 +96,8 @@ definitions:
     properties:
       amount:
         type: number
-      category:
-        type: string
+      category_id:
+        type: integer
       frequency:
         $ref: '#/definitions/internal_transaction.Frequency'
       title:
@@ -72,7 +114,7 @@ definitions:
       amount:
         type: number
       category:
-        type: string
+        $ref: '#/definitions/financial_control_internal_categories.CategoryResponse'
       created_at:
         type: string
       frequency:
@@ -188,6 +230,156 @@ paths:
       summary: Refresh do token do usuario
       tags:
       - Auth
+  /categories:
+    get:
+      description: Retorna todas as categorias disponíveis para o usuário (categorias
+        próprias + categorias padrão do sistema)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_categories.Category'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar categorias
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova categoria personalizada para o usuário
+      parameters:
+      - description: Dados da categoria
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/internal_categories.CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_categories.Category'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Criar categoria
+      tags:
+      - Categories
+  /categories/{id}:
+    delete:
+      description: Remove uma categoria criada pelo usuário
+      parameters:
+      - description: ID da categoria
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Deletar categoria
+      tags:
+      - Categories
+    get:
+      description: Retorna uma categoria pelo ID
+      parameters:
+      - description: ID da categoria
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_categories.Category'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar categoria
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Atualiza uma categoria criada pelo usuário
+      parameters:
+      - description: ID da categoria
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados atualizados da categoria
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/internal_categories.CategoryRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Atualizar categoria
+      tags:
+      - Categories
   /register:
     post:
       consumes:

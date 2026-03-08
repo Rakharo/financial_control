@@ -15,6 +15,15 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
+// GetAll godoc
+// @Summary Listar categorias
+// @Description Retorna todas as categorias disponíveis para o usuário (categorias próprias + categorias padrão do sistema)
+// @Tags Categories
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} Category
+// @Failure 500 {object} map[string]string
+// @Router /categories [get]
 func (h *Handler) GetAll(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")
@@ -29,6 +38,18 @@ func (h *Handler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
+// GetByID godoc
+// @Summary Buscar categoria
+// @Description Retorna uma categoria pelo ID
+// @Tags Categories
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "ID da categoria"
+// @Success 200 {object} Category
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /categories/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 
 	idParam := c.Param("id")
@@ -55,6 +76,18 @@ func (h *Handler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, category)
 }
 
+// Create godoc
+// @Summary Criar categoria
+// @Description Cria uma nova categoria personalizada para o usuário
+// @Tags Categories
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param category body CategoryRequest true "Dados da categoria"
+// @Success 201 {object} Category
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /categories [post]
 func (h *Handler) Create(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")
@@ -76,6 +109,17 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, category)
 }
 
+// Update godoc
+// @Summary Atualizar categoria
+// @Description Atualiza uma categoria criada pelo usuário
+// @Tags Categories
+// @Security BearerAuth
+// @Accept json
+// @Param id path int true "ID da categoria"
+// @Param category body CategoryRequest true "Dados atualizados da categoria"
+// @Success 204
+// @Failure 400 {object} map[string]string
+// @Router /categories/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")
@@ -101,6 +145,15 @@ func (h *Handler) Update(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// Delete godoc
+// @Summary Deletar categoria
+// @Description Remove uma categoria criada pelo usuário
+// @Tags Categories
+// @Security BearerAuth
+// @Param id path int true "ID da categoria"
+// @Success 204
+// @Failure 400 {object} map[string]string
+// @Router /categories/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 
 	userID := c.GetUint64("user_id")

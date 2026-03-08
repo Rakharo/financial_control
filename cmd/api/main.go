@@ -21,6 +21,11 @@ import (
 func main() {
 	db := connection.Connect()
 
+	err := connection.SeedCategories(db)
+	if err != nil {
+		panic(err)
+	}
+
 	userRepo := user.NewRepository(db)
 	userService := user.NewService(userRepo)
 	userHandler := user.NewHandler(userService)
