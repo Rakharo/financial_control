@@ -28,7 +28,7 @@ func (h *Handler) GetTransactions(c *gin.Context) {
 	userIDInterface, _ := c.Get("userID")
 	userID := uint64(userIDInterface.(int64))
 
-	transactions, err := h.service.GetAll(userID)
+	transactions, err := h.service.GetAllTransactions(userID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -133,12 +133,12 @@ func (h *Handler) UpdateTransaction(c *gin.Context) {
 	userIDInterface, _ := c.Get("userID")
 	userID := uint64(userIDInterface.(int64))
 
-	err = h.service.Update(id, userID, dto)
+	transaction, err := h.service.Update(id, userID, dto)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Transaction updated successfully"})
+	c.JSON(http.StatusOK, transaction)
 }
 
 // DeleteTransaction godoc

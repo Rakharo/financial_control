@@ -135,14 +135,14 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	err := h.service.Update(id, userID, dto)
+	category, err := h.service.Update(id, userID, dto)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusOK, category)
 }
 
 // Delete godoc

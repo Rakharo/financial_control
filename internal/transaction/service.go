@@ -30,15 +30,39 @@ func NewService(repo TransactionRepository, categoryRepo CategoryRepository) *Se
 	}
 }
 
-func (s *Service) GetAll(userID uint64) ([]Transaction, error) {
-	return s.repo.GetAllByUser(userID)
+func (s *Service) GetAllTransactions(userID uint64) ([]TransactionResponse, error) {
+
+	transactions, err := s.repo.GetAllByUser(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var response []TransactionResponse
+
+	for _, t := range transactions {
+		response = append(response, ToTransactionResponse(t))
+	}
+
+	return response, nil
 }
 
-func (s *Service) GetByID(id uint64, userID uint64) (*Transaction, error) {
-	return s.repo.GetByID(id, userID)
+func (s *Service) GetByID(id uint64, userID uint64) (*TransactionResponse, error) {
+	transaction, err := s.repo.GetByID(id, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if transaction == nil {
+		return nil, errors.New("transação não encontrada")
+	}
+
+	response := ToTransactionResponse(*transaction)
+
+	return &response, nil
 }
 
-func (s *Service) Create(userID uint64, dto TransactionRequest) (*Transaction, error) {
+func (s *Service) Create(userID uint64, dto TransactionRequest) (*TransactionResponse, error) {
 
 	category, err := s.categoryRepo.GetByID(dto.CategoryID)
 
@@ -73,33 +97,34 @@ func (s *Service) Create(userID uint64, dto TransactionRequest) (*Transaction, e
 		return nil, err
 	}
 
-	return &transaction, nil
+	response := ToTransactionResponse(transaction)
+
+	return &response, nil
 }
 
-func (s *Service) Update(transactionID uint64, userID uint64, dto TransactionRequest) error {
+func (s *Service) Update(transactionID uint64, userID uint64, dto TransactionRequest) (*TransactionResponse, error) {
 
 	transaction, err := s.repo.GetByID(transactionID, userID)
-
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if transaction == nil {
-		return errors.New("transação não encontrada")
+		return nil, errors.New("transação não encontrada")
 	}
 
 	category, err := s.categoryRepo.GetByID(dto.CategoryID)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if category == nil {
-		return errors.New("categoria não encontrada")
+		return nil, errors.New("categoria não encontrada")
 	}
 
 	if category.UserID != nil && *category.UserID != userID {
-		return errors.New("categoria inválida")
+		return nil, errors.New("categoria inválida")
 	}
 
 	now := time.Now()
@@ -111,7 +136,14 @@ func (s *Service) Update(transactionID uint64, userID uint64, dto TransactionReq
 	transaction.Frequency = dto.Frequency
 	transaction.UpdatedAt = &now
 
-	return s.repo.Update(transaction)
+	err = s.repo.Update(transaction)
+	if err != nil {
+		return nil, err
+	}
+
+	response := ToTransactionResponse(*transaction)
+
+	return &response, nil
 }
 
 func (s *Service) Delete(id uint64) error {

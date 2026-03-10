@@ -23,15 +23,37 @@ func NewService(repo CategoryRepository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) GetAll(userID uint64) ([]Category, error) {
-	return s.repo.GetAllByUser(userID)
+func (s *Service) GetAll(userID uint64) ([]CategoryResponse, error) {
+	categories, err := s.repo.GetAllByUser(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var response []CategoryResponse
+
+	for _, c := range categories {
+		response = append(response, ToCategoryResponse(c))
+	}
+
+	return response, nil
 }
 
-func (s *Service) GetByID(id uint64) (*Category, error) {
-	return s.repo.GetByID(id)
+func (s *Service) GetByID(id uint64) (*CategoryResponse, error) {
+	category, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if category == nil {
+		return nil, errors.New("categoria não encontrada")
+	}
+
+	response := ToCategoryResponse(*category)
+
+	return &response, nil
 }
 
-func (s *Service) Create(userID uint64, dto CategoryRequest) (*Category, error) {
+func (s *Service) Create(userID uint64, dto CategoryRequest) (*CategoryResponse, error) {
 
 	dto.Name = strings.ToLower(strings.TrimSpace(dto.Name))
 
@@ -56,39 +78,41 @@ func (s *Service) Create(userID uint64, dto CategoryRequest) (*Category, error) 
 		return nil, err
 	}
 
-	return &category, nil
+	response := ToCategoryResponse(category)
+
+	return &response, nil
 }
 
-func (s *Service) Update(id uint64, userID uint64, dto CategoryRequest) error {
+func (s *Service) Update(id uint64, userID uint64, dto CategoryRequest) (*CategoryResponse, error) {
 
 	dto.Name = strings.ToLower(strings.TrimSpace(dto.Name))
 
 	existing, err := s.repo.GetByNameAndUser(dto.Name, userID)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if existing != nil && existing.ID != id {
-		return errors.New("categoria já existe")
+		return nil, errors.New("categoria já existe")
 	}
 
 	category, err := s.repo.GetByID(id)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if category == nil {
-		return errors.New("categoria não encontrada")
+		return nil, errors.New("categoria não encontrada")
 	}
 
 	if category.UserID == nil {
-		return errors.New("categoria do sistema não pode ser editada")
+		return nil, errors.New("categoria do sistema não pode ser editada")
 	}
 
 	if *category.UserID != userID {
-		return errors.New("não autorizado")
+		return nil, errors.New("não autorizado")
 	}
 
 	now := time.Now()
@@ -97,7 +121,14 @@ func (s *Service) Update(id uint64, userID uint64, dto CategoryRequest) error {
 	category.Type = dto.Type
 	category.UpdatedAt = &now
 
-	return s.repo.Update(category)
+	err = s.repo.Update(category)
+	if err != nil {
+		return nil, err
+	}
+
+	response := ToCategoryResponse(*category)
+
+	return &response, nil
 }
 
 func (s *Service) Delete(id uint64, userID uint64) error {

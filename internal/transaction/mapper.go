@@ -1,0 +1,41 @@
+package transaction
+
+import (
+	category "financial_control/internal/categories"
+	"time"
+)
+
+func ToTransactionResponse(t Transaction) TransactionResponse {
+
+	var categoryResponse *category.CategoryResponse
+
+	if t.Category != nil {
+		categoryResponse = &category.CategoryResponse{
+			ID:   t.Category.ID,
+			Name: t.Category.Name,
+			Type: t.Category.Type,
+		}
+	}
+
+	var updatedAt string
+	if t.UpdatedAt != nil {
+		updatedAt = t.UpdatedAt.Format(time.RFC3339)
+	}
+
+	var createdAt string
+
+	if t.CreatedAt != nil {
+		createdAt = t.CreatedAt.Format(time.RFC3339)
+	}
+
+	return TransactionResponse{
+		ID:        t.ID,
+		Title:     t.Title,
+		Amount:    t.Amount,
+		Type:      t.Type,
+		Category:  categoryResponse,
+		Frequency: t.Frequency,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
+	}
+}
