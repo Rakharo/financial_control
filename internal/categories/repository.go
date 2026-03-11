@@ -16,7 +16,6 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Category, error) {
 	SELECT id, user_id, name, type, created_at, updated_at
 	FROM categories
 	WHERE user_id = ? OR user_id IS NULL
-	ORDER BY name
 	`
 
 	rows, err := r.db.Query(query, userID)
