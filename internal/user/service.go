@@ -9,7 +9,7 @@ import (
 
 type UserRepository interface {
 	GetAllUsers() ([]User, error)
-	GetUserById(id int64) (*User, error)
+	GetUserById(id uint64) (*User, error)
 	GetUserByLogin(login string) (*User, error)
 	CreateUser(user *User) error
 	UpdateUser(id int64, name string, email string) error
@@ -62,7 +62,7 @@ func (s *Service) GetAllUsers() ([]UserResponse, error) {
 	return response, nil
 }
 
-func (s *Service) GetUserById(id int64) (*User, error) {
+func (s *Service) GetUserById(id uint64) (*User, error) {
 	if id <= 0 {
 		return nil, errors.New("ID inválido")
 	}

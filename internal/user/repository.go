@@ -61,7 +61,7 @@ func (r *Repository) GetUserByLogin(login string) (*User, error) {
 	return &user, nil
 }
 
-func (r *Repository) GetUserById(id int64) (*User, error) {
+func (r *Repository) GetUserById(id uint64) (*User, error) {
 	query := "SELECT id, name, email, login FROM users WHERE id = ?"
 
 	row := r.db.QueryRow(query, id)

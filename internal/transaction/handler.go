@@ -25,8 +25,7 @@ func NewHandler(service *Service) *Handler {
 // @Router /transaction [get]
 func (h *Handler) GetTransactions(c *gin.Context) {
 
-	userIDInterface, _ := c.Get("userID")
-	userID := uint64(userIDInterface.(int64))
+	userID := c.GetUint64("userID")
 
 	transactions, err := h.service.GetAllTransactions(userID)
 
@@ -90,8 +89,7 @@ func (h *Handler) CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	userIDInterface, _ := c.Get("userID")
-	userID := uint64(userIDInterface.(int64))
+	userID := c.GetUint64("userID")
 
 	transaction, err := h.service.Create(userID, dto)
 
@@ -130,8 +128,7 @@ func (h *Handler) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	userIDInterface, _ := c.Get("userID")
-	userID := uint64(userIDInterface.(int64))
+	userID := c.GetUint64("userID")
 
 	transaction, err := h.service.Update(id, userID, dto)
 	if err != nil {
@@ -179,8 +176,8 @@ func (h *Handler) DeleteTransaction(c *gin.Context) {
 // @Success 200 {object} SummaryDTO
 // @Router /transaction/summary [get]
 func (h *Handler) GetSummary(c *gin.Context) {
-	userIDInterface, _ := c.Get("userID")
-	userID := uint64(userIDInterface.(int64))
+
+	userID := c.GetUint64("userID")
 
 	month := c.Query("month")
 	year := c.Query("year")

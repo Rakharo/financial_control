@@ -9,11 +9,11 @@ import (
 var jwtSecret = []byte("secret_key")
 
 type Claims struct {
-	UserID int64 `json:"user_id"`
+	UserID uint64 `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userID int64) (string, error) {
+func GenerateAccessToken(userID uint64) (string, error) {
 
 	claims := Claims{
 		UserID: userID,
@@ -28,7 +28,7 @@ func GenerateAccessToken(userID int64) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-func GenerateRefreshToken(userID int64) (string, error) {
+func GenerateRefreshToken(userID uint64) (string, error) {
 
 	claims := Claims{
 		UserID: userID,
@@ -44,9 +44,12 @@ func GenerateRefreshToken(userID int64) (string, error) {
 }
 
 func ValidateToken(tokenString string) (*Claims, error) {
+
+	claims := &Claims{}
+
 	token, err := jwt.ParseWithClaims(
 		tokenString,
-		&Claims{},
+		claims,
 		func(token *jwt.Token) (interface{}, error) {
 			return jwtSecret, nil
 		},
@@ -56,8 +59,7 @@ func ValidateToken(tokenString string) (*Claims, error) {
 		return nil, err
 	}
 
-	claims, ok := token.Claims.(*Claims)
-	if !ok || !token.Valid {
+	if !token.Valid {
 		return nil, err
 	}
 

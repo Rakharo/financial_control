@@ -26,7 +26,7 @@ func NewHandler(service *Service) *Handler {
 // @Router /category [get]
 func (h *Handler) GetAll(c *gin.Context) {
 
-	userID := c.GetUint64("user_id")
+	userID := c.GetUint64("userID")
 
 	categories, err := h.service.GetAll(userID)
 
@@ -90,7 +90,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 // @Router /category [post]
 func (h *Handler) Create(c *gin.Context) {
 
-	userID := c.GetUint64("user_id")
+	userID := c.GetUint64("userID")
 
 	var dto CategoryRequest
 
@@ -102,7 +102,9 @@ func (h *Handler) Create(c *gin.Context) {
 	category, err := h.service.Create(userID, dto)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
@@ -122,7 +124,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Router /category/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 
-	userID := c.GetUint64("user_id")
+	userID := c.GetUint64("userID")
 
 	idParam := c.Param("id")
 
@@ -156,7 +158,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Router /category/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 
-	userID := c.GetUint64("user_id")
+	userID := c.GetUint64("userID")
 
 	idParam := c.Param("id")
 

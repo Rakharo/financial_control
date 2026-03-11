@@ -67,9 +67,13 @@ func (s *Service) Create(userID uint64, dto CategoryRequest) (*CategoryResponse,
 		return nil, errors.New("categoria já existe")
 	}
 
+	now := time.Now()
+
 	category := Category{
-		Name:   dto.Name,
-		UserID: &userID,
+		Name:      dto.Name,
+		Type:      dto.Type,
+		UserID:    &userID,
+		CreatedAt: &now,
 	}
 
 	err = s.repo.Create(&category)

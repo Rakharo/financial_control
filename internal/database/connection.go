@@ -2,7 +2,6 @@ package connection
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -29,6 +28,5 @@ func Connect() *sql.DB {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Connected!")
 	return db
 }

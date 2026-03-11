@@ -32,7 +32,7 @@ func (h *Handler) GetMe(c *gin.Context) {
 		return
 	}
 
-	userID := userIDValue.(int64)
+	userID := userIDValue.(uint64)
 
 	user, err := h.service.GetUserById(userID)
 
@@ -95,9 +95,9 @@ func (h *Handler) GetUsers(c *gin.Context) {
 // @Failure 404 {object} map[string]string
 // @Router /user/{id} [get]
 func (h *Handler) GetUserByID(c *gin.Context) {
-	idStr := c.Param("id")
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
 
-	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return

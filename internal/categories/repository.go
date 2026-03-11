@@ -13,7 +13,7 @@ func NewRepository(db *sql.DB) *Repository {
 func (r *Repository) GetAllByUser(userID uint64) ([]Category, error) {
 
 	query := `
-	SELECT *
+	SELECT id, user_id, name, type, created_at, updated_at
 	FROM categories
 	WHERE user_id = ? OR user_id IS NULL
 	ORDER BY name
@@ -31,22 +31,28 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Category, error) {
 
 	for rows.Next() {
 
-		var category Category
+		var c Category
+		var userID sql.NullInt64
 
 		err := rows.Scan(
-			&category.ID,
-			&category.UserID,
-			&category.Name,
-			&category.Type,
-			&category.CreatedAt,
-			&category.UpdatedAt,
+			&c.ID,
+			&userID,
+			&c.Name,
+			&c.Type,
+			&c.CreatedAt,
+			&c.UpdatedAt,
 		)
 
 		if err != nil {
 			return nil, err
 		}
 
-		categories = append(categories, category)
+		if userID.Valid {
+			uid := uint64(userID.Int64)
+			c.UserID = &uid
+		}
+
+		categories = append(categories, c)
 	}
 
 	return categories, nil
@@ -61,10 +67,11 @@ func (r *Repository) GetByID(id uint64) (*Category, error) {
 	`
 
 	var category Category
+	var userID sql.NullInt64
 
 	err := r.db.QueryRow(query, id).Scan(
 		&category.ID,
-		&category.UserID,
+		&userID,
 		&category.Name,
 		&category.Type,
 		&category.CreatedAt,

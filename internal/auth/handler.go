@@ -40,8 +40,8 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, _ := GenerateAccessToken(u.ID)
-	refreshToken, _ := GenerateRefreshToken(u.ID)
+	accessToken, _ := GenerateAccessToken(uint64(u.ID))
+	refreshToken, _ := GenerateRefreshToken(uint64(u.ID))
 
 	c.JSON(200, LoginResponse{
 		AccessToken:  accessToken,
