@@ -3,6 +3,7 @@ package transaction
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,20 +22,38 @@ func NewHandler(service *Service) *Handler {
 // @Tags Transactions
 // @Security BearerAuth
 // @Produce json
+// @Param page query int false "1"
+// @Param limit query int false "10"
+// @Param month query int false "Mês (1-12)"
+// @Param year query int false "Ano (ex: 2026)"
 // @Success 200 {array} TransactionResponse
 // @Router /transaction [get]
 func (h *Handler) GetTransactions(c *gin.Context) {
 
-	userID := c.GetUint64("userID")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	transactions, err := h.service.GetAllTransactions(userID)
+	now := time.Now()
+
+	month, _ := strconv.Atoi(c.DefaultQuery("month", strconv.Itoa(int(now.Month()))))
+	year, _ := strconv.Atoi(c.DefaultQuery("year", strconv.Itoa(int(now.Year()))))
+
+	userID := c.GetUint64("userID")
+	transactions, total, err := h.service.GetAllTransactions(userID, page, limit, month, year)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, transactions)
+	c.JSON(http.StatusOK, gin.H{
+		"transactions": transactions,
+		"page":         page,
+		"limit":        limit,
+		"total":        total,
+		"month":        month,
+		"year":         year,
+	})
 }
 
 // GetTransactionByID godoc

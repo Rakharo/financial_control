@@ -388,6 +388,32 @@ const docTemplate = `{
                     "Transactions"
                 ],
                 "summary": "Lista transações",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "10",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Mês (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ano (ex: 2026)",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

@@ -7,7 +7,7 @@ import (
 )
 
 type TransactionRepository interface {
-	GetAllByUser(userID uint64) ([]Transaction, error)
+	GetAllByUser(userID uint64, limit int, offset int, month int, year int) ([]Transaction, int, error)
 	GetByID(id uint64, userID uint64) (*Transaction, error)
 	Create(transaction *Transaction) error
 	Update(transaction *Transaction) error
@@ -30,11 +30,13 @@ func NewService(repo TransactionRepository, categoryRepo CategoryRepository) *Se
 	}
 }
 
-func (s *Service) GetAllTransactions(userID uint64) ([]TransactionResponse, error) {
+func (s *Service) GetAllTransactions(userID uint64, page int, limit int, month int, year int) ([]TransactionResponse, int, error) {
 
-	transactions, err := s.repo.GetAllByUser(userID)
+	offset := (page - 1) * limit
+
+	transactions, total, err := s.repo.GetAllByUser(userID, limit, offset, month, year)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var response []TransactionResponse
@@ -43,7 +45,7 @@ func (s *Service) GetAllTransactions(userID uint64) ([]TransactionResponse, erro
 		response = append(response, ToTransactionResponse(t))
 	}
 
-	return response, nil
+	return response, total, nil
 }
 
 func (s *Service) GetByID(id uint64, userID uint64) (*TransactionResponse, error) {

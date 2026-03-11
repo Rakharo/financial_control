@@ -13,7 +13,7 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
+func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month int, year int) ([]Transaction, int, error) {
 
 	query := `
 	SELECT
@@ -32,17 +32,22 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
 	c.updated_at
 	FROM transactions t
 	LEFT JOIN categories c ON c.id = t.category_id
-	WHERE t.user_id = ?`
+	WHERE t.user_id = ?
+	AND MONTH(t.created_at) = ?
+	AND YEAR(t.created_at) = ?
+	ORDER BY t.created_at DESC
+	LIMIT ? OFFSET ?
+	`
 
-	rows, err := r.db.Query(query, userID)
+	rows, err := r.db.Query(query, userID, month, year, limit, offset)
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
 
-	var transactions []Transaction
+	transactions := []Transaction{}
 
 	for rows.Next() {
 		var transaction Transaction
@@ -67,13 +72,22 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Transaction, error) {
 		transaction.Category = &category
 
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
+		transaction.Category = &category
 		transactions = append(transactions, transaction)
 	}
 
-	return transactions, nil
+	var total int
+
+	err = r.db.QueryRow("SELECT COUNT(*) FROM transactions WHERE user_id = ? AND MONTH(created_at) = ? AND YEAR(created_at) = ?", userID, month, year).Scan(&total)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return transactions, total, nil
 }
 
 func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
