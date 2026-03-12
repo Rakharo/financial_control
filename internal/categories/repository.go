@@ -10,23 +10,25 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) GetAllByUser(userID uint64) ([]Category, error) {
+func (r *Repository) GetAllByUser(userID uint64, limit int, offset int) ([]Category, int, error) {
 
 	query := `
 	SELECT id, user_id, name, type, created_at, updated_at
 	FROM categories
 	WHERE user_id = ? OR user_id IS NULL
+	ORDER BY created_at DESC
+	LIMIT ? OFFSET ?
 	`
 
-	rows, err := r.db.Query(query, userID)
+	rows, err := r.db.Query(query, userID, limit, offset)
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
 
-	var categories []Category
+	categories := []Category{}
 
 	for rows.Next() {
 
@@ -43,7 +45,7 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Category, error) {
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		if userID.Valid {
@@ -54,7 +56,14 @@ func (r *Repository) GetAllByUser(userID uint64) ([]Category, error) {
 		categories = append(categories, c)
 	}
 
-	return categories, nil
+	var total int
+
+	err = r.db.QueryRow("SELECT COUNT(*) FROM categories WHERE user_id = ?", userID).Scan(&total)
+
+	if err != nil {
+		return nil, 0, err
+	}
+	return categories, total, nil
 }
 
 func (r *Repository) GetByID(id uint64) (*Category, error) {

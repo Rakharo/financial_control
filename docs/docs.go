@@ -116,6 +116,20 @@ const docTemplate = `{
                     "Categories"
                 ],
                 "summary": "Listar categorias",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

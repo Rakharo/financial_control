@@ -7,7 +7,7 @@ import (
 )
 
 type CategoryRepository interface {
-	GetAllByUser(userID uint64) ([]Category, error)
+	GetAllByUser(userID uint64, limit int, offset int) ([]Category, int, error)
 	GetByID(id uint64) (*Category, error)
 	Create(category *Category) error
 	Update(category *Category) error
@@ -23,10 +23,12 @@ func NewService(repo CategoryRepository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) GetAll(userID uint64) ([]CategoryResponse, error) {
-	categories, err := s.repo.GetAllByUser(userID)
+func (s *Service) GetAll(userID uint64, page int, limit int) ([]CategoryResponse, int, error) {
+	offset := (page - 1) * limit
+
+	categories, total, err := s.repo.GetAllByUser(userID, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var response []CategoryResponse
@@ -35,7 +37,7 @@ func (s *Service) GetAll(userID uint64) ([]CategoryResponse, error) {
 		response = append(response, ToCategoryResponse(c))
 	}
 
-	return response, nil
+	return response, total, nil
 }
 
 func (s *Service) GetByID(id uint64) (*CategoryResponse, error) {

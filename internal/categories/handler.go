@@ -21,6 +21,8 @@ func NewHandler(service *Service) *Handler {
 // @Tags Categories
 // @Security BearerAuth
 // @Produce json
+// @Param page query int false "1"
+// @Param limit query int false "10"
 // @Success 200 {array} Category
 // @Failure 500 {object} map[string]string
 // @Router /category [get]
@@ -28,14 +30,22 @@ func (h *Handler) GetAll(c *gin.Context) {
 
 	userID := c.GetUint64("userID")
 
-	categories, err := h.service.GetAll(userID)
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+	categories, total, err := h.service.GetAll(userID, page, limit)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, categories)
+	c.JSON(http.StatusOK, gin.H{
+		"categories": categories,
+		"page":       page,
+		"limit":      limit,
+		"total":      total,
+	})
 }
 
 // GetByID godoc
