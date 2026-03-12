@@ -2,7 +2,7 @@ package transaction
 
 import (
 	"database/sql"
-	category "financial_control/internal/categories"
+	category "financial_control/internal/features/categories"
 )
 
 type Repository struct {

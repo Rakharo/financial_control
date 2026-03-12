@@ -1,7 +1,7 @@
 package transaction
 
 import (
-	category "financial_control/internal/categories"
+	category "financial_control/internal/features/categories"
 	"time"
 )
 

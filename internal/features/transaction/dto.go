@@ -1,6 +1,6 @@
 package transaction
 
-import category "financial_control/internal/categories"
+import category "financial_control/internal/features/categories"
 
 type TransactionRequest struct {
 	Title      string    `json:"title" binding:"required"`

@@ -1,6 +1,6 @@
 package auth
 
-import "financial_control/internal/user"
+import "financial_control/internal/features/user"
 
 type LoginRequest struct {
 	Login    string `json:"login"`

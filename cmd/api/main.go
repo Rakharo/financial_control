@@ -11,11 +11,11 @@ package main
 
 import (
 	"financial_control/internal/auth"
-	category "financial_control/internal/categories"
 	connection "financial_control/internal/database"
+	category "financial_control/internal/features/categories"
+	"financial_control/internal/features/transaction"
+	"financial_control/internal/features/user"
 	"financial_control/internal/router"
-	"financial_control/internal/transaction"
-	"financial_control/internal/user"
 )
 
 func main() {

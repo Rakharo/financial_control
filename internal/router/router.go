@@ -2,10 +2,10 @@ package router
 
 import (
 	"financial_control/internal/auth"
-	category "financial_control/internal/categories"
+	category "financial_control/internal/features/categories"
+	"financial_control/internal/features/transaction"
+	"financial_control/internal/features/user"
 	"financial_control/internal/middleware"
-	"financial_control/internal/transaction"
-	"financial_control/internal/user"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

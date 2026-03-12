@@ -2,7 +2,7 @@ package transaction
 
 import (
 	"errors"
-	category "financial_control/internal/categories"
+	category "financial_control/internal/features/categories"
 	"time"
 )
 

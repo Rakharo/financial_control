@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"financial_control/internal/user"
+	"financial_control/internal/features/user"
 
 	"github.com/gin-gonic/gin"
 )
