@@ -58,7 +58,7 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int) ([]Categ
 
 	var total int
 
-	err = r.db.QueryRow("SELECT COUNT(*) FROM categories WHERE user_id = ?", userID).Scan(&total)
+	err = r.db.QueryRow("SELECT COUNT(*) FROM categories WHERE user_id = ? OR user_id IS NULL", userID).Scan(&total)
 
 	if err != nil {
 		return nil, 0, err
