@@ -136,7 +136,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_categories.Category"
+                                "$ref": "#/definitions/internal_features_categories.Category"
                             }
                         }
                     },
@@ -175,7 +175,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_categories.CategoryRequest"
+                            "$ref": "#/definitions/internal_features_categories.CategoryRequest"
                         }
                     }
                 ],
@@ -183,7 +183,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/internal_categories.Category"
+                            "$ref": "#/definitions/internal_features_categories.Category"
                         }
                     },
                     "400": {
@@ -235,7 +235,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_categories.Category"
+                            "$ref": "#/definitions/internal_features_categories.Category"
                         }
                     },
                     "400": {
@@ -295,7 +295,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_categories.CategoryRequest"
+                            "$ref": "#/definitions/internal_features_categories.CategoryRequest"
                         }
                     }
                 ],
@@ -370,7 +370,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_user.CreateUserRequest"
+                            "$ref": "#/definitions/internal_features_user.CreateUserRequest"
                         }
                     }
                 ],
@@ -434,7 +434,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_transaction.TransactionResponse"
+                                "$ref": "#/definitions/internal_features_transaction.TransactionResponse"
                             }
                         }
                     }
@@ -464,7 +464,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_transaction.TransactionRequest"
+                            "$ref": "#/definitions/internal_features_transaction.TransactionRequest"
                         }
                     }
                 ],
@@ -513,7 +513,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_transaction.SummaryDTO"
+                            "$ref": "#/definitions/internal_features_transaction.SummaryDTO"
                         }
                     }
                 }
@@ -546,7 +546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_transaction.TransactionResponse"
+                            "$ref": "#/definitions/internal_features_transaction.TransactionResponse"
                         }
                     },
                     "404": {
@@ -590,7 +590,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_transaction.TransactionRequest"
+                            "$ref": "#/definitions/internal_features_transaction.TransactionRequest"
                         }
                     }
                 ],
@@ -659,7 +659,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/internal_user.UserResponse"
+                                "$ref": "#/definitions/internal_features_user.UserResponse"
                             }
                         }
                     }
@@ -684,7 +684,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_user.UserResponse"
+                            "$ref": "#/definitions/internal_features_user.UserResponse"
                         }
                     },
                     "401": {
@@ -726,7 +726,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_user.UserResponse"
+                            "$ref": "#/definitions/internal_features_user.UserResponse"
                         }
                     },
                     "404": {
@@ -770,7 +770,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_user.User"
+                            "$ref": "#/definitions/internal_features_user.User"
                         }
                     }
                 ],
@@ -820,7 +820,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "financial_control_internal_categories.CategoryResponse": {
+        "financial_control_internal_features_categories.CategoryResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -843,7 +843,7 @@ const docTemplate = `{
                 }
             }
         },
-        "financial_control_internal_user.UserResponse": {
+        "financial_control_internal_features_user.UserResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -884,7 +884,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/financial_control_internal_user.UserResponse"
+                    "$ref": "#/definitions/financial_control_internal_features_user.UserResponse"
                 }
             }
         },
@@ -896,7 +896,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_categories.Category": {
+        "internal_features_categories.Category": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -921,7 +921,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_categories.CategoryRequest": {
+        "internal_features_categories.CategoryRequest": {
             "type": "object",
             "required": [
                 "name",
@@ -936,7 +936,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_transaction.Frequency": {
+        "internal_features_transaction.Frequency": {
             "type": "string",
             "enum": [
                 "fixed",
@@ -947,7 +947,7 @@ const docTemplate = `{
                 "Variable"
             ]
         },
-        "internal_transaction.SummaryDTO": {
+        "internal_features_transaction.SummaryDTO": {
             "type": "object",
             "properties": {
                 "balance": {
@@ -961,7 +961,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_transaction.TransactionRequest": {
+        "internal_features_transaction.TransactionRequest": {
             "type": "object",
             "required": [
                 "amount",
@@ -976,46 +976,67 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "frequency": {
-                    "$ref": "#/definitions/internal_transaction.Frequency"
+                    "$ref": "#/definitions/internal_features_transaction.Frequency"
+                },
+                "installment_total": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
                 },
+                "transaction_date": {
+                    "type": "string"
+                },
                 "type": {
-                    "$ref": "#/definitions/internal_transaction.Type"
+                    "$ref": "#/definitions/internal_features_transaction.Type"
                 }
             }
         },
-        "internal_transaction.TransactionResponse": {
+        "internal_features_transaction.TransactionResponse": {
             "type": "object",
             "properties": {
                 "amount": {
                     "type": "number"
                 },
                 "category": {
-                    "$ref": "#/definitions/financial_control_internal_categories.CategoryResponse"
+                    "$ref": "#/definitions/financial_control_internal_features_categories.CategoryResponse"
                 },
                 "created_at": {
                     "type": "string"
                 },
                 "frequency": {
-                    "$ref": "#/definitions/internal_transaction.Frequency"
+                    "$ref": "#/definitions/internal_features_transaction.Frequency"
                 },
                 "id": {
                     "type": "integer"
                 },
+                "installment_number": {
+                    "type": "integer"
+                },
+                "installment_plan_id": {
+                    "type": "integer"
+                },
+                "installment_total": {
+                    "type": "integer"
+                },
+                "installment_value": {
+                    "type": "number"
+                },
                 "title": {
                     "type": "string"
                 },
+                "transaction_date": {
+                    "type": "string"
+                },
                 "type": {
-                    "$ref": "#/definitions/internal_transaction.Type"
+                    "$ref": "#/definitions/internal_features_transaction.Type"
                 },
                 "updated_at": {
                     "type": "string"
                 }
             }
         },
-        "internal_transaction.Type": {
+        "internal_features_transaction.Type": {
             "type": "string",
             "enum": [
                 "income",
@@ -1026,7 +1047,7 @@ const docTemplate = `{
                 "Expense"
             ]
         },
-        "internal_user.CreateUserRequest": {
+        "internal_features_user.CreateUserRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -1043,7 +1064,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_user.User": {
+        "internal_features_user.User": {
             "type": "object",
             "properties": {
                 "email": {
@@ -1060,7 +1081,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_user.UserResponse": {
+        "internal_features_user.UserResponse": {
             "type": "object",
             "properties": {
                 "email": {

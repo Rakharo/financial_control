@@ -1,5 +1,5 @@
 definitions:
-  financial_control_internal_categories.CategoryResponse:
+  financial_control_internal_features_categories.CategoryResponse:
     properties:
       created_at:
         type: string
@@ -14,7 +14,7 @@ definitions:
       user_id:
         type: integer
     type: object
-  financial_control_internal_user.UserResponse:
+  financial_control_internal_features_user.UserResponse:
     properties:
       email:
         type: string
@@ -41,14 +41,14 @@ definitions:
       refresh_token:
         type: string
       user:
-        $ref: '#/definitions/financial_control_internal_user.UserResponse'
+        $ref: '#/definitions/financial_control_internal_features_user.UserResponse'
     type: object
   internal_auth.RefreshRequest:
     properties:
       refresh_token:
         type: string
     type: object
-  internal_categories.Category:
+  internal_features_categories.Category:
     properties:
       createdAt:
         type: string
@@ -65,7 +65,7 @@ definitions:
         format: int64
         type: integer
     type: object
-  internal_categories.CategoryRequest:
+  internal_features_categories.CategoryRequest:
     properties:
       name:
         type: string
@@ -75,7 +75,7 @@ definitions:
     - name
     - type
     type: object
-  internal_transaction.Frequency:
+  internal_features_transaction.Frequency:
     enum:
     - fixed
     - variable
@@ -83,7 +83,7 @@ definitions:
     x-enum-varnames:
     - Fixed
     - Variable
-  internal_transaction.SummaryDTO:
+  internal_features_transaction.SummaryDTO:
     properties:
       balance:
         type: number
@@ -92,43 +92,57 @@ definitions:
       total_income:
         type: number
     type: object
-  internal_transaction.TransactionRequest:
+  internal_features_transaction.TransactionRequest:
     properties:
       amount:
         type: number
       category_id:
         type: integer
       frequency:
-        $ref: '#/definitions/internal_transaction.Frequency'
+        $ref: '#/definitions/internal_features_transaction.Frequency'
+      installment_total:
+        type: integer
       title:
         type: string
+      transaction_date:
+        type: string
       type:
-        $ref: '#/definitions/internal_transaction.Type'
+        $ref: '#/definitions/internal_features_transaction.Type'
     required:
     - amount
     - title
     - type
     type: object
-  internal_transaction.TransactionResponse:
+  internal_features_transaction.TransactionResponse:
     properties:
       amount:
         type: number
       category:
-        $ref: '#/definitions/financial_control_internal_categories.CategoryResponse'
+        $ref: '#/definitions/financial_control_internal_features_categories.CategoryResponse'
       created_at:
         type: string
       frequency:
-        $ref: '#/definitions/internal_transaction.Frequency'
+        $ref: '#/definitions/internal_features_transaction.Frequency'
       id:
         type: integer
+      installment_number:
+        type: integer
+      installment_plan_id:
+        type: integer
+      installment_total:
+        type: integer
+      installment_value:
+        type: number
       title:
         type: string
+      transaction_date:
+        type: string
       type:
-        $ref: '#/definitions/internal_transaction.Type'
+        $ref: '#/definitions/internal_features_transaction.Type'
       updated_at:
         type: string
     type: object
-  internal_transaction.Type:
+  internal_features_transaction.Type:
     enum:
     - income
     - expense
@@ -136,7 +150,7 @@ definitions:
     x-enum-varnames:
     - Income
     - Expense
-  internal_user.CreateUserRequest:
+  internal_features_user.CreateUserRequest:
     properties:
       email:
         type: string
@@ -147,7 +161,7 @@ definitions:
       password:
         type: string
     type: object
-  internal_user.User:
+  internal_features_user.User:
     properties:
       email:
         type: string
@@ -158,7 +172,7 @@ definitions:
       name:
         type: string
     type: object
-  internal_user.UserResponse:
+  internal_features_user.UserResponse:
     properties:
       email:
         type: string
@@ -250,7 +264,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_categories.Category'
+              $ref: '#/definitions/internal_features_categories.Category'
             type: array
         "500":
           description: Internal Server Error
@@ -273,14 +287,14 @@ paths:
         name: category
         required: true
         schema:
-          $ref: '#/definitions/internal_categories.CategoryRequest'
+          $ref: '#/definitions/internal_features_categories.CategoryRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/internal_categories.Category'
+            $ref: '#/definitions/internal_features_categories.Category'
         "400":
           description: Bad Request
           schema:
@@ -335,7 +349,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_categories.Category'
+            $ref: '#/definitions/internal_features_categories.Category'
         "400":
           description: Bad Request
           schema:
@@ -374,7 +388,7 @@ paths:
         name: category
         required: true
         schema:
-          $ref: '#/definitions/internal_categories.CategoryRequest'
+          $ref: '#/definitions/internal_features_categories.CategoryRequest'
       responses:
         "204":
           description: No Content
@@ -400,7 +414,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_user.CreateUserRequest'
+          $ref: '#/definitions/internal_features_user.CreateUserRequest'
       produces:
       - application/json
       responses:
@@ -440,7 +454,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_transaction.TransactionResponse'
+              $ref: '#/definitions/internal_features_transaction.TransactionResponse'
             type: array
       security:
       - BearerAuth: []
@@ -457,7 +471,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_transaction.TransactionRequest'
+          $ref: '#/definitions/internal_features_transaction.TransactionRequest'
       produces:
       - application/json
       responses:
@@ -505,7 +519,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_transaction.TransactionResponse'
+            $ref: '#/definitions/internal_features_transaction.TransactionResponse'
         "404":
           description: Not Found
           schema:
@@ -531,7 +545,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_transaction.TransactionRequest'
+          $ref: '#/definitions/internal_features_transaction.TransactionRequest'
       produces:
       - application/json
       responses:
@@ -563,7 +577,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_transaction.SummaryDTO'
+            $ref: '#/definitions/internal_features_transaction.SummaryDTO'
       security:
       - BearerAuth: []
       summary: Resumo das transações
@@ -579,7 +593,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/internal_user.UserResponse'
+              $ref: '#/definitions/internal_features_user.UserResponse'
             type: array
       security:
       - BearerAuth: []
@@ -619,7 +633,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_user.UserResponse'
+            $ref: '#/definitions/internal_features_user.UserResponse'
         "404":
           description: Not Found
           schema:
@@ -645,7 +659,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_user.User'
+          $ref: '#/definitions/internal_features_user.User'
       produces:
       - application/json
       responses:
@@ -668,7 +682,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_user.UserResponse'
+            $ref: '#/definitions/internal_features_user.UserResponse'
         "401":
           description: Unauthorized
           schema:

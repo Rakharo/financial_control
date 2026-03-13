@@ -13,6 +13,7 @@ import (
 	"financial_control/internal/auth"
 	connection "financial_control/internal/database"
 	category "financial_control/internal/features/categories"
+	"financial_control/internal/features/installment"
 	"financial_control/internal/features/transaction"
 	"financial_control/internal/features/user"
 	"financial_control/internal/router"
@@ -32,12 +33,15 @@ func main() {
 
 	authHandler := auth.NewHandler(userService)
 
+	installmentRepo := installment.NewRepository(db)
+	installmentService := installment.NewService(installmentRepo)
+
 	categoryRepo := category.NewRepository(db)
 	categoryService := category.NewService(categoryRepo)
 	categoryHandler := category.NewHandler(categoryService)
 
 	transactionRepo := transaction.NewRepository(db)
-	transactionService := transaction.NewService(transactionRepo, categoryRepo)
+	transactionService := transaction.NewService(transactionRepo, categoryRepo, installmentService)
 	transactionHandler := transaction.NewHandler(transactionService)
 
 	r := router.SetupRouter(userHandler, transactionHandler, authHandler, categoryHandler)

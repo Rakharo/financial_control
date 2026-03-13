@@ -13,6 +13,15 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
+type installmentRow struct {
+	installmentID          sql.NullInt64
+	installmentTotalAmount sql.NullFloat64
+	installments           sql.NullInt64
+	installmentDate        sql.NullTime
+	installmentCreatedAt   sql.NullTime
+	installmentUpdatedAt   sql.NullTime
+}
+
 func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month int, year int) ([]Transaction, int, error) {
 
 	query := `
@@ -23,6 +32,11 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month in
 	t.amount,
 	t.type,
 	t.frequency,
+	t.installment_plan_id,
+	t.installment_number,
+	t.installment_total,
+	t.installment_value,
+	t.transaction_date,
 	t.created_at,
 	t.updated_at,
 	c.id,
@@ -33,8 +47,8 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month in
 	FROM transactions t
 	LEFT JOIN categories c ON c.id = t.category_id
 	WHERE t.user_id = ?
-	AND MONTH(t.created_at) = ?
-	AND YEAR(t.created_at) = ?
+	AND MONTH(t.transaction_date) = ?
+	AND YEAR(t.transaction_date) = ?
 	ORDER BY t.created_at DESC
 	LIMIT ? OFFSET ?
 	`
@@ -60,6 +74,11 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month in
 			&transaction.Amount,
 			&transaction.Type,
 			&transaction.Frequency,
+			&transaction.InstallmentPlanID,
+			&transaction.InstallmentNumber,
+			&transaction.InstallmentTotal,
+			&transaction.InstallmentValue,
+			&transaction.TransactionDate,
 			&transaction.CreatedAt,
 			&transaction.UpdatedAt,
 			&category.ID,
@@ -68,8 +87,6 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month in
 			&category.CreatedAt,
 			&category.UpdatedAt,
 		)
-
-		transaction.Category = &category
 
 		if err != nil {
 			return nil, 0, err
@@ -81,7 +98,7 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month in
 
 	var total int
 
-	err = r.db.QueryRow("SELECT COUNT(*) FROM transactions WHERE user_id = ? AND MONTH(created_at) = ? AND YEAR(created_at) = ?", userID, month, year).Scan(&total)
+	err = r.db.QueryRow("SELECT COUNT(*) FROM transactions WHERE user_id = ? AND MONTH(transaction_date) = ? AND YEAR(transaction_date) = ?", userID, month, year).Scan(&total)
 
 	if err != nil {
 		return nil, 0, err
@@ -100,6 +117,11 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 	t.amount,
 	t.type,
 	t.frequency,
+	t.installment_plan_id,
+	t.installment_number,
+	t.installment_total,
+	t.installment_value,
+	t.transaction_date,
 	t.created_at,
 	t.updated_at,
 	c.id,
@@ -122,6 +144,11 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 		&transaction.Amount,
 		&transaction.Type,
 		&transaction.Frequency,
+		&transaction.InstallmentPlanID,
+		&transaction.InstallmentNumber,
+		&transaction.InstallmentTotal,
+		&transaction.InstallmentValue,
+		&transaction.TransactionDate,
 		&transaction.CreatedAt,
 		&transaction.UpdatedAt,
 		&category.ID,
@@ -143,9 +170,11 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 func (r *Repository) Create(transaction *Transaction) error {
 
 	query := `
-	INSERT INTO transactions 
-	(user_id, title, amount, type, category_id, frequency, created_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?)
+	INSERT INTO transactions
+	(user_id, title, amount, type, category_id, frequency,
+	installment_plan_id, installment_number, installment_total,
+	installment_value, transaction_date, created_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	var categoryID interface{}
@@ -162,6 +191,11 @@ func (r *Repository) Create(transaction *Transaction) error {
 		transaction.Type,
 		categoryID,
 		transaction.Frequency,
+		transaction.InstallmentPlanID,
+		transaction.InstallmentNumber,
+		transaction.InstallmentTotal,
+		transaction.InstallmentValue,
+		transaction.TransactionDate,
 		transaction.CreatedAt,
 	)
 

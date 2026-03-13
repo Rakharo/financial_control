@@ -28,14 +28,25 @@ func ToTransactionResponse(t Transaction) TransactionResponse {
 		createdAt = t.CreatedAt.Format(time.RFC3339)
 	}
 
+	var transactionDate string
+
+	if t.TransactionDate != nil {
+		transactionDate = t.TransactionDate.Format(time.RFC3339)
+	}
+
 	return TransactionResponse{
-		ID:        t.ID,
-		Title:     t.Title,
-		Amount:    t.Amount,
-		Type:      t.Type,
-		Category:  categoryResponse,
-		Frequency: t.Frequency,
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		ID:                t.ID,
+		Title:             t.Title,
+		Amount:            t.Amount,
+		Type:              t.Type,
+		Category:          categoryResponse,
+		Frequency:         t.Frequency,
+		InstallmentPlanID: t.InstallmentPlanID,
+		InstallmentNumber: t.InstallmentNumber,
+		InstallmentTotal:  t.InstallmentTotal,
+		InstallmentValue:  t.InstallmentValue,
+		TransactionDate:   transactionDate,
+		CreatedAt:         createdAt,
+		UpdatedAt:         updatedAt,
 	}
 }

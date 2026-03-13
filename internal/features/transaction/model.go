@@ -19,13 +19,18 @@ const (
 )
 
 type Transaction struct {
-	ID        uint64
-	UserID    uint64
-	Title     string
-	Amount    float64
-	Type      Type
-	Category  *category.Category
-	Frequency Frequency
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
+	ID                uint64
+	UserID            uint64
+	Title             string
+	Amount            float64
+	Type              Type
+	Category          *category.Category
+	Frequency         Frequency
+	InstallmentPlanID *uint64
+	InstallmentNumber *int
+	InstallmentTotal  *int
+	InstallmentValue  *float64
+	TransactionDate   *time.Time
+	CreatedAt         *time.Time
+	UpdatedAt         *time.Time
 }
