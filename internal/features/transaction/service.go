@@ -5,7 +5,9 @@ import (
 	category "financial_control/internal/features/categories"
 	"financial_control/internal/features/installment"
 	"financial_control/internal/utils"
+	"fmt"
 	"math"
+	"strconv"
 	"time"
 )
 
@@ -15,7 +17,7 @@ type TransactionRepository interface {
 	Create(transaction *Transaction) error
 	Update(transaction *Transaction) error
 	Delete(id uint64) error
-	GetSummaryByUser(userID uint64, month string, year string) (*SummaryDTO, error)
+	GetSummaryByUser(userID uint64, month time.Time, year time.Time) (*SummaryDTO, error)
 }
 type CategoryRepository interface {
 	GetByID(id uint64) (*category.Category, error)
@@ -230,5 +232,30 @@ func (s *Service) Delete(id uint64) error {
 }
 
 func (s *Service) GetSummary(userID uint64, month string, year string) (*SummaryDTO, error) {
-	return s.repo.GetSummaryByUser(userID, month, year)
+
+	now := time.Now()
+
+	m := int(now.Month())
+	y := now.Year()
+
+	if month != "" {
+		parsedMonth, err := strconv.Atoi(month)
+		if err != nil {
+			return nil, fmt.Errorf("mês inválido")
+		}
+		m = parsedMonth
+	}
+
+	if year != "" {
+		parsedYear, err := strconv.Atoi(year)
+		if err != nil {
+			return nil, fmt.Errorf("ano inválido")
+		}
+		y = parsedYear
+	}
+
+	startDate := time.Date(y, time.Month(m), 1, 0, 0, 0, 0, now.Location())
+	endDate := startDate.AddDate(0, 1, 0)
+
+	return s.repo.GetSummaryByUser(userID, startDate, endDate)
 }

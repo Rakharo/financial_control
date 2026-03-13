@@ -3,6 +3,7 @@ package transaction
 import (
 	"database/sql"
 	category "financial_control/internal/features/categories"
+	"time"
 )
 
 type Repository struct {
@@ -252,26 +253,38 @@ func (r *Repository) Delete(id uint64) error {
 	return err
 }
 
-func (r *Repository) GetSummaryByUser(userID uint64, month string, year string) (*SummaryDTO, error) {
+func (r *Repository) GetSummaryByUser(userID uint64, startDate time.Time, endDate time.Time) (*SummaryDTO, error) {
 
 	query := `
 		SELECT
-			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END),0),
-			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END),0)
+			COALESCE(SUM(
+				CASE 
+					WHEN type = 'income' 
+					THEN CASE 
+						WHEN installment_number IS NOT NULL THEN installment_value
+						ELSE amount
+					END
+				END
+			),0),
+
+			COALESCE(SUM(
+				CASE 
+					WHEN type = 'expense' 
+					THEN CASE 
+						WHEN installment_number IS NOT NULL THEN installment_value
+						ELSE amount
+					END
+				END
+			),0)
 		FROM transactions
 		WHERE user_id = ?
+		AND transaction_date >= ?
+		AND transaction_date < ?
 	`
-
-	args := []interface{}{userID}
-
-	if month != "" && year != "" {
-		query += " AND MONTH(created_at) = ? AND YEAR(created_at) = ?"
-		args = append(args, month, year)
-	}
 
 	var summary SummaryDTO
 
-	err := r.db.QueryRow(query, args...).Scan(
+	err := r.db.QueryRow(query, userID, startDate, endDate).Scan(
 		&summary.TotalIncome,
 		&summary.TotalExpense,
 	)
