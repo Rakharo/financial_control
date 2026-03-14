@@ -5,9 +5,16 @@ import (
 	"time"
 )
 
-var brazilLoc, _ = time.LoadLocation("America/Sao_Paulo")
-
 func ParseDate(value string) (time.Time, error) {
+
+	loc, err := time.LoadLocation("America/Sao_Paulo")
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	if t, err := time.Parse(time.RFC3339, value); err == nil {
+		return t.In(loc), nil
+	}
 
 	layouts := []string{
 		"2006-01-02",
@@ -15,7 +22,7 @@ func ParseDate(value string) (time.Time, error) {
 	}
 
 	for _, layout := range layouts {
-		if t, err := time.ParseInLocation(layout, value, brazilLoc); err == nil {
+		if t, err := time.ParseInLocation(layout, value, loc); err == nil {
 			return t, nil
 		}
 	}
