@@ -12,6 +12,8 @@ type DashboardDTO struct {
 type CategoryUsageDTO struct {
 	Category string  `json:"category"`
 	Total    float64 `json:"total"`
+	Color    string  `json:"color"`
+	UserID   *uint64 `json:"user_id"`
 }
 
 type DailyExpenseDTO struct {

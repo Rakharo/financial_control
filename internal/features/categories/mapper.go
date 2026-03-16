@@ -25,6 +25,7 @@ func ToCategoryResponse(c Category) CategoryResponse {
 		UserID:    userID,
 		Name:      c.Name,
 		Type:      c.Type,
+		Color:     c.Color,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}

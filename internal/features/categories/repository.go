@@ -13,7 +13,7 @@ func NewRepository(db *sql.DB) *Repository {
 func (r *Repository) GetAllByUser(userID uint64, limit int, offset int) ([]Category, int, error) {
 
 	query := `
-	SELECT id, user_id, name, type, created_at, updated_at
+	SELECT id, user_id, name, type, created_at, updated_at, color
 	FROM categories
 	WHERE user_id = ? OR user_id IS NULL
 	ORDER BY created_at DESC
@@ -42,6 +42,7 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int) ([]Categ
 			&c.Type,
 			&c.CreatedAt,
 			&c.UpdatedAt,
+			&c.Color,
 		)
 
 		if err != nil {
@@ -69,7 +70,7 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int) ([]Categ
 func (r *Repository) GetByID(id uint64) (*Category, error) {
 
 	query := `
-	SELECT *
+	SELECT id, user_id, name, type, created_at, updated_at, color
 	FROM categories
 	WHERE id = ?
 	`
@@ -84,10 +85,16 @@ func (r *Repository) GetByID(id uint64) (*Category, error) {
 		&category.Type,
 		&category.CreatedAt,
 		&category.UpdatedAt,
+		&category.Color,
 	)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if userID.Valid {
+		uid := uint64(userID.Int64)
+		category.UserID = &uid
 	}
 
 	return &category, nil
@@ -96,8 +103,8 @@ func (r *Repository) GetByID(id uint64) (*Category, error) {
 func (r *Repository) Create(category *Category) error {
 
 	query := `
-	INSERT INTO categories (user_id, name, type, created_at)
-	VALUES (?, ?, ?, ?)
+	INSERT INTO categories (user_id, name, type, created_at, color)
+	VALUES (?, ?, ?, ?, ?)
 	`
 
 	result, err := r.db.Exec(
@@ -106,6 +113,7 @@ func (r *Repository) Create(category *Category) error {
 		category.Name,
 		category.Type,
 		category.CreatedAt,
+		category.Color,
 	)
 
 	if err != nil {
@@ -127,7 +135,7 @@ func (r *Repository) Update(category *Category) error {
 
 	query := `
 	UPDATE categories
-	SET name = ?, type = ?, updated_at = ?
+	SET name = ?, type = ?, updated_at = ?, color = ?
 	WHERE id = ? AND user_id = ?
 	`
 
@@ -136,6 +144,7 @@ func (r *Repository) Update(category *Category) error {
 		category.Name,
 		category.Type,
 		category.UpdatedAt,
+		category.Color,
 		category.ID,
 		category.UserID,
 	)

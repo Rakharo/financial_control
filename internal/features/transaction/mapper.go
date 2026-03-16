@@ -10,11 +10,8 @@ func ToTransactionResponse(t Transaction) TransactionResponse {
 	var categoryResponse *category.CategoryResponse
 
 	if t.Category != nil {
-		categoryResponse = &category.CategoryResponse{
-			ID:   t.Category.ID,
-			Name: t.Category.Name,
-			Type: t.Category.Type,
-		}
+		c := category.ToCategoryResponse(*t.Category)
+		categoryResponse = &c
 	}
 
 	var updatedAt string

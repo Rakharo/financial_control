@@ -40,10 +40,12 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month in
 	t.created_at,
 	t.updated_at,
 	c.id,
+	c.user_id,
 	c.name,
 	c.type,
 	c.created_at,
-	c.updated_at
+	c.updated_at,
+	c.color
 	FROM transactions t
 	LEFT JOIN categories c ON c.id = t.category_id
 	WHERE t.user_id = ?
@@ -82,10 +84,12 @@ func (r *Repository) GetAllByUser(userID uint64, limit int, offset int, month in
 			&transaction.CreatedAt,
 			&transaction.UpdatedAt,
 			&category.ID,
+			&category.UserID,
 			&category.Name,
 			&category.Type,
 			&category.CreatedAt,
 			&category.UpdatedAt,
+			&category.Color,
 		)
 
 		if err != nil {
@@ -125,10 +129,12 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 	t.created_at,
 	t.updated_at,
 	c.id,
+	c.user_id,
 	c.name,
 	c.type,
 	c.created_at,
-	c.updated_at
+	c.updated_at,
+	c.color
 	FROM transactions t
 	LEFT JOIN categories c ON c.id = t.category_id
 	WHERE t.id = ? AND t.user_id = ?
@@ -152,10 +158,12 @@ func (r *Repository) GetByID(id uint64, userID uint64) (*Transaction, error) {
 		&transaction.CreatedAt,
 		&transaction.UpdatedAt,
 		&category.ID,
+		&category.UserID,
 		&category.Name,
 		&category.Type,
 		&category.CreatedAt,
 		&category.UpdatedAt,
+		&category.Color,
 	)
 
 	if err != nil {

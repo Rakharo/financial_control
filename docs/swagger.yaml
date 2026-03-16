@@ -1,6 +1,8 @@
 definitions:
   financial_control_internal_features_categories.CategoryResponse:
     properties:
+      color:
+        type: string
       created_at:
         type: string
       id:
@@ -61,8 +63,12 @@ definitions:
     properties:
       category:
         type: string
+      color:
+        type: string
       total:
         type: number
+      user_id:
+        type: integer
     type: object
   internal_features_analytics.DailyExpenseDTO:
     properties:
@@ -103,6 +109,8 @@ definitions:
     type: object
   internal_features_categories.Category:
     properties:
+      color:
+        type: string
       createdAt:
         type: string
       id:
@@ -120,11 +128,14 @@ definitions:
     type: object
   internal_features_categories.CategoryRequest:
     properties:
+      color:
+        type: string
       name:
         type: string
       type:
         type: string
     required:
+    - color
     - name
     - type
     type: object
@@ -458,8 +469,8 @@ paths:
         schema:
           $ref: '#/definitions/internal_features_categories.CategoryRequest'
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:

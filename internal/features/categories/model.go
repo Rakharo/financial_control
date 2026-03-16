@@ -7,6 +7,7 @@ type Category struct {
 	UserID    *uint64
 	Name      string
 	Type      string
+	Color     string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }

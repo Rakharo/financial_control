@@ -339,8 +339,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "200": {
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -824,6 +824,9 @@ const docTemplate = `{
         "financial_control_internal_features_categories.CategoryResponse": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -917,8 +920,14 @@ const docTemplate = `{
                 "category": {
                     "type": "string"
                 },
+                "color": {
+                    "type": "string"
+                },
                 "total": {
                     "type": "number"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -982,6 +991,9 @@ const docTemplate = `{
         "internal_features_categories.Category": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -1007,10 +1019,14 @@ const docTemplate = `{
         "internal_features_categories.CategoryRequest": {
             "type": "object",
             "required": [
+                "color",
                 "name",
                 "type"
             ],
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },

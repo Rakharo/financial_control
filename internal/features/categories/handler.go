@@ -1,6 +1,7 @@
 package category
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -129,7 +130,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Accept json
 // @Param id path int true "ID da categoria"
 // @Param category body CategoryRequest true "Dados atualizados da categoria"
-// @Success 204
+// @Success 200
 // @Failure 400 {object} map[string]string
 // @Router /category/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
@@ -138,22 +139,38 @@ func (h *Handler) Update(c *gin.Context) {
 
 	idParam := c.Param("id")
 
-	id, _ := strconv.ParseUint(idParam, 10, 64)
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "id inválido",
+		})
+		return
+	}
 
 	var dto CategoryRequest
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
+
+	fmt.Println("PASSOU BIND")
 
 	category, err := h.service.Update(id, userID, dto)
 
+	fmt.Println("PASSOU SERVICE")
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		fmt.Println("ERRO SERVICE:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
+	fmt.Printf("CATEGORY RESPONSE: %+v\n", category)
 	c.JSON(http.StatusOK, category)
 }
 

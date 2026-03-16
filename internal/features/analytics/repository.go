@@ -62,6 +62,8 @@ func (r *Repository) GetTopCategories(userID uint64, startDate time.Time, endDat
 	query := `
 		SELECT 
 			c.name,
+			c.color,
+			c.user_id,
 			SUM(
 				CASE 
 					WHEN t.installment_number IS NOT NULL THEN t.installment_value
@@ -93,6 +95,8 @@ func (r *Repository) GetTopCategories(userID uint64, startDate time.Time, endDat
 
 		err := rows.Scan(
 			&c.Category,
+			&c.Color,
+			&c.UserID,
 			&c.Total,
 		)
 

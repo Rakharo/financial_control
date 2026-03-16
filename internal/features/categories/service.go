@@ -69,6 +69,10 @@ func (s *Service) Create(userID uint64, dto CategoryRequest) (*CategoryResponse,
 		return nil, errors.New("categoria já existe")
 	}
 
+	if dto.Color == "" {
+		dto.Color = "#6366f1"
+	}
+
 	now := time.Now()
 
 	category := Category{
@@ -76,6 +80,7 @@ func (s *Service) Create(userID uint64, dto CategoryRequest) (*CategoryResponse,
 		Type:      dto.Type,
 		UserID:    &userID,
 		CreatedAt: &now,
+		Color:     dto.Color,
 	}
 
 	err = s.repo.Create(&category)
@@ -121,11 +126,16 @@ func (s *Service) Update(id uint64, userID uint64, dto CategoryRequest) (*Catego
 		return nil, errors.New("não autorizado")
 	}
 
+	if dto.Color == "" {
+		dto.Color = "#6366f1"
+	}
+
 	now := time.Now()
 
 	category.Name = dto.Name
 	category.Type = dto.Type
 	category.UpdatedAt = &now
+	category.Color = dto.Color
 
 	err = s.repo.Update(category)
 	if err != nil {
