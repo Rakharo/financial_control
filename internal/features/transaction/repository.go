@@ -3,7 +3,6 @@ package transaction
 import (
 	"database/sql"
 	category "financial_control/internal/features/categories"
-	"time"
 )
 
 type Repository struct {
@@ -251,49 +250,4 @@ func (r *Repository) Delete(id uint64) error {
 	_, err := r.db.Exec(query, id)
 
 	return err
-}
-
-func (r *Repository) GetSummaryByUser(userID uint64, startDate time.Time, endDate time.Time) (*SummaryDTO, error) {
-
-	query := `
-		SELECT
-			COALESCE(SUM(
-				CASE 
-					WHEN type = 'income' 
-					THEN CASE 
-						WHEN installment_number IS NOT NULL THEN installment_value
-						ELSE amount
-					END
-				END
-			),0),
-
-			COALESCE(SUM(
-				CASE 
-					WHEN type = 'expense' 
-					THEN CASE 
-						WHEN installment_number IS NOT NULL THEN installment_value
-						ELSE amount
-					END
-				END
-			),0)
-		FROM transactions
-		WHERE user_id = ?
-		AND transaction_date >= ?
-		AND transaction_date < ?
-	`
-
-	var summary SummaryDTO
-
-	err := r.db.QueryRow(query, userID, startDate, endDate).Scan(
-		&summary.TotalIncome,
-		&summary.TotalExpense,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	summary.Balance = summary.TotalIncome - summary.TotalExpense
-
-	return &summary, nil
 }

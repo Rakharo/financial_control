@@ -6,6 +6,45 @@
         "version": "1.0"
     },
     "paths": {
+        "/analytics/dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retorna resumo financeiro e analytics do mês",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Dashboard financeiro",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Mês (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ano (ex: 2026)",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_features_analytics.DashboardDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Autentica o usuário e retorna JWT",
@@ -884,6 +923,56 @@
             "properties": {
                 "refresh_token": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_features_analytics.CategoryUsageDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "number",
+                    "format": "float64"
+                }
+            }
+        },
+        "internal_features_analytics.DailyExpenseDTO": {
+            "type": "object",
+            "properties": {
+                "day": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "number",
+                    "format": "float64"
+                }
+            }
+        },
+        "internal_features_analytics.DashboardDTO": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "daily_expenses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_features_analytics.DailyExpenseDTO"
+                    }
+                },
+                "expenses": {
+                    "type": "number"
+                },
+                "income": {
+                    "type": "number"
+                },
+                "top_categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_features_analytics.CategoryUsageDTO"
+                    }
                 }
             }
         },

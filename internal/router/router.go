@@ -2,6 +2,7 @@ package router
 
 import (
 	"financial_control/internal/auth"
+	"financial_control/internal/features/analytics"
 	category "financial_control/internal/features/categories"
 	"financial_control/internal/features/transaction"
 	"financial_control/internal/features/user"
@@ -16,7 +17,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Handler, authHandler *auth.Handler, categoryHandler *category.Handler) *gin.Engine {
+func SetupRouter(
+	userHandler *user.Handler,
+	transactionHandler *transaction.Handler,
+	authHandler *auth.Handler,
+	categoryHandler *category.Handler,
+	analyticsHandler *analytics.Handler) *gin.Engine {
+
 	r := gin.Default()
 
 	r.Use(middleware.Logger())
@@ -69,6 +76,11 @@ func SetupRouter(userHandler *user.Handler, transactionHandler *transaction.Hand
 			categories.POST("", categoryHandler.Create)
 			categories.PUT("/:id", categoryHandler.Update)
 			categories.DELETE("/:id", categoryHandler.Delete)
+		}
+
+		insights := protected.Group("/analytics")
+		{
+			insights.GET("/dashboard", analyticsHandler.GetDashboard)
 		}
 	}
 

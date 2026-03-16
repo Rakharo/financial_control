@@ -48,6 +48,39 @@ definitions:
       refresh_token:
         type: string
     type: object
+  internal_features_analytics.CategoryUsageDTO:
+    properties:
+      category:
+        type: string
+      total:
+        format: float64
+        type: number
+    type: object
+  internal_features_analytics.DailyExpenseDTO:
+    properties:
+      day:
+        type: integer
+      total:
+        format: float64
+        type: number
+    type: object
+  internal_features_analytics.DashboardDTO:
+    properties:
+      balance:
+        type: number
+      daily_expenses:
+        items:
+          $ref: '#/definitions/internal_features_analytics.DailyExpenseDTO'
+        type: array
+      expenses:
+        type: number
+      income:
+        type: number
+      top_categories:
+        items:
+          $ref: '#/definitions/internal_features_analytics.CategoryUsageDTO'
+        type: array
+    type: object
   internal_features_categories.Category:
     properties:
       createdAt:
@@ -188,6 +221,30 @@ info:
   title: Financial Control API
   version: "1.0"
 paths:
+  /analytics/dashboard:
+    get:
+      description: Retorna resumo financeiro e analytics do mês
+      parameters:
+      - description: Mês (1-12)
+        in: query
+        name: month
+        type: integer
+      - description: 'Ano (ex: 2026)'
+        in: query
+        name: year
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_analytics.DashboardDTO'
+      security:
+      - BearerAuth: []
+      summary: Dashboard financeiro
+      tags:
+      - Analytics
   /auth/login:
     post:
       consumes:
