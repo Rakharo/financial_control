@@ -65,8 +65,6 @@ func SetupRouter(
 			transactions.POST("", transactionHandler.CreateTransaction)
 			transactions.DELETE("/:id", transactionHandler.DeleteTransaction)
 			transactions.PUT("/:id", transactionHandler.UpdateTransaction)
-
-			transactions.GET("/summary", transactionHandler.GetSummary)
 		}
 
 		categories := protected.Group("/category")

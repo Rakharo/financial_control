@@ -9,11 +9,11 @@ type DashboardDTO struct {
 }
 
 type CategoryUsageDTO struct {
-	Category string
-	Total    float64
+	Category string  `json:"category"`
+	Total    float64 `json:"total"`
 }
 
 type DailyExpenseDTO struct {
-	Day   int
-	Total float64
+	Day   int     `json:"day"`
+	Total float64 `json:"total"`
 }

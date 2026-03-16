@@ -520,44 +520,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/transaction/summary": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transactions"
-                ],
-                "summary": "Resumo das transações",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Mês (1-12)",
-                        "name": "month",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Ano (ex: 2026)",
-                        "name": "year",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_features_transaction.SummaryDTO"
-                        }
-                    }
-                }
-            }
-        },
         "/transaction/{id}": {
             "get": {
                 "security": [
@@ -942,8 +904,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "total": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 }
             }
         },
@@ -954,8 +915,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "total": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 }
             }
         },
@@ -1035,20 +995,6 @@ const docTemplate = `{
                 "Fixed",
                 "Variable"
             ]
-        },
-        "internal_features_transaction.SummaryDTO": {
-            "type": "object",
-            "properties": {
-                "balance": {
-                    "type": "number"
-                },
-                "total_expense": {
-                    "type": "number"
-                },
-                "total_income": {
-                    "type": "number"
-                }
-            }
         },
         "internal_features_transaction.TransactionRequest": {
             "type": "object",
