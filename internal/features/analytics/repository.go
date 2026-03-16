@@ -152,3 +152,147 @@ func (r *Repository) GetDailyExpenses(userID uint64, startDate time.Time, endDat
 
 	return result, nil
 }
+
+func (r *Repository) GetYearSummary(userID uint64, year int) (float64, float64, error) {
+
+	query := `
+	SELECT
+	COALESCE(SUM(
+	 CASE WHEN type='income'
+	 THEN CASE
+	  WHEN installment_number IS NOT NULL THEN installment_value
+	  ELSE amount
+	 END
+	 END),0),
+
+	COALESCE(SUM(
+	 CASE WHEN type='expense'
+	 THEN CASE
+	  WHEN installment_number IS NOT NULL THEN installment_value
+	  ELSE amount
+	 END
+	 END),0)
+
+	FROM transactions
+	WHERE user_id = ?
+	AND YEAR(transaction_date) = ?
+	`
+
+	var income float64
+	var expense float64
+
+	err := r.db.QueryRow(query, userID, year).Scan(&income, &expense)
+
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return income, expense, nil
+}
+
+func (r *Repository) GetLifetimeBalance(userID uint64) (float64, float64, error) {
+
+	query := `
+	SELECT
+	COALESCE(SUM(
+	 CASE WHEN type='income'
+	 THEN CASE
+	  WHEN installment_number IS NOT NULL THEN installment_value
+	  ELSE amount
+	 END
+	 END),0),
+
+	COALESCE(SUM(
+	 CASE WHEN type='expense'
+	 THEN CASE
+	  WHEN installment_number IS NOT NULL THEN installment_value
+	  ELSE amount
+	 END
+	 END),0)
+
+	FROM transactions
+	WHERE user_id = ?
+	`
+
+	var income float64
+	var expense float64
+
+	err := r.db.QueryRow(query, userID).Scan(&income, &expense)
+
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return income, expense, nil
+}
+
+func (r *Repository) GetMonthlyInstallments(userID uint64, startDate time.Time, endDate time.Time) (float64, error) {
+
+	query := `
+	SELECT COALESCE(SUM(installment_value),0)
+	FROM transactions
+	WHERE user_id = ?
+	AND installment_number IS NOT NULL
+	AND type = 'expense'
+	AND transaction_date >= ?
+	AND transaction_date < ?
+	`
+
+	var total float64
+
+	err := r.db.QueryRow(query, userID, startDate, endDate).Scan(&total)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func (r *Repository) GetFutureInstallments(userID uint64) (float64, error) {
+
+	query := `
+	SELECT COALESCE(SUM(installment_value),0)
+	FROM transactions
+	WHERE user_id = ?
+	AND installment_number IS NOT NULL
+	AND type = 'expense'
+	AND transaction_date > CURDATE()
+	`
+
+	var total float64
+
+	err := r.db.QueryRow(query, userID).Scan(&total)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func (r *Repository) GetBiggestActiveInstallment(userID uint64) (float64, int, error) {
+
+	query := `
+	SELECT 
+	installment_value,
+	COUNT(*) as remaining
+	FROM transactions
+	WHERE user_id = ?
+	AND installment_number IS NOT NULL
+	AND type = 'expense'
+	AND transaction_date >= CURDATE()
+	GROUP BY installment_value
+	ORDER BY installment_value DESC
+	LIMIT 1
+	`
+
+	var value float64
+	var remaining int
+
+	err := r.db.QueryRow(query, userID).Scan(&value, &remaining)
+
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return value, remaining, nil
+}

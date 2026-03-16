@@ -897,6 +897,20 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_features_analytics.BalanceDTO": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "expense": {
+                    "type": "number"
+                },
+                "income": {
+                    "type": "number"
+                }
+            }
+        },
         "internal_features_analytics.CategoryUsageDTO": {
             "type": "object",
             "properties": {
@@ -922,26 +936,46 @@ const docTemplate = `{
         "internal_features_analytics.DashboardDTO": {
             "type": "object",
             "properties": {
-                "balance": {
-                    "type": "number"
-                },
                 "daily_expenses": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_features_analytics.DailyExpenseDTO"
                     }
                 },
-                "expenses": {
+                "installments": {
+                    "$ref": "#/definitions/internal_features_analytics.InstallmentInsightsDTO"
+                },
+                "lifetime_balance": {
                     "type": "number"
                 },
-                "income": {
-                    "type": "number"
+                "month": {
+                    "$ref": "#/definitions/internal_features_analytics.BalanceDTO"
                 },
                 "top_categories": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internal_features_analytics.CategoryUsageDTO"
                     }
+                },
+                "year": {
+                    "$ref": "#/definitions/internal_features_analytics.BalanceDTO"
+                }
+            }
+        },
+        "internal_features_analytics.InstallmentInsightsDTO": {
+            "type": "object",
+            "properties": {
+                "biggest_installment": {
+                    "type": "number"
+                },
+                "future_installments": {
+                    "type": "number"
+                },
+                "monthly_installments": {
+                    "type": "number"
+                },
+                "remaining_installments": {
+                    "type": "integer"
                 }
             }
         },

@@ -48,6 +48,15 @@ definitions:
       refresh_token:
         type: string
     type: object
+  internal_features_analytics.BalanceDTO:
+    properties:
+      balance:
+        type: number
+      expense:
+        type: number
+      income:
+        type: number
+    type: object
   internal_features_analytics.CategoryUsageDTO:
     properties:
       category:
@@ -64,20 +73,33 @@ definitions:
     type: object
   internal_features_analytics.DashboardDTO:
     properties:
-      balance:
-        type: number
       daily_expenses:
         items:
           $ref: '#/definitions/internal_features_analytics.DailyExpenseDTO'
         type: array
-      expenses:
+      installments:
+        $ref: '#/definitions/internal_features_analytics.InstallmentInsightsDTO'
+      lifetime_balance:
         type: number
-      income:
-        type: number
+      month:
+        $ref: '#/definitions/internal_features_analytics.BalanceDTO'
       top_categories:
         items:
           $ref: '#/definitions/internal_features_analytics.CategoryUsageDTO'
         type: array
+      year:
+        $ref: '#/definitions/internal_features_analytics.BalanceDTO'
+    type: object
+  internal_features_analytics.InstallmentInsightsDTO:
+    properties:
+      biggest_installment:
+        type: number
+      future_installments:
+        type: number
+      monthly_installments:
+        type: number
+      remaining_installments:
+        type: integer
     type: object
   internal_features_categories.Category:
     properties:

@@ -1,7 +1,6 @@
 package analytics
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -10,6 +9,11 @@ type AnalyticsRepository interface {
 	GetDashboardSummary(userID uint64, startDate time.Time, endDate time.Time) (float64, float64, error)
 	GetTopCategories(userID uint64, startDate time.Time, endDate time.Time) ([]CategoryUsageDTO, error)
 	GetDailyExpenses(userID uint64, startDate time.Time, endDate time.Time) ([]DailyExpenseDTO, error)
+	GetYearSummary(userID uint64, year int) (float64, float64, error)
+	GetLifetimeBalance(userID uint64) (float64, float64, error)
+	GetMonthlyInstallments(userID uint64, startDate time.Time, endDate time.Time) (float64, error)
+	GetFutureInstallments(userID uint64) (float64, error)
+	GetBiggestActiveInstallment(userID uint64) (float64, int, error)
 }
 
 type Service struct {
@@ -24,48 +28,76 @@ func (s *Service) GetDashboard(userID uint64, month string, year string) (*Dashb
 
 	now := time.Now()
 
-	m := int(now.Month())
-	y := now.Year()
+	m, _ := strconv.Atoi(month)
+	y, _ := strconv.Atoi(year)
 
-	if month != "" {
-		parsedMonth, err := strconv.Atoi(month)
-		if err != nil {
-			return nil, fmt.Errorf("mês inválido")
-		}
-		m = parsedMonth
+	if m == 0 {
+		m = int(now.Month())
 	}
 
-	if year != "" {
-		parsedYear, err := strconv.Atoi(year)
-		if err != nil {
-			return nil, fmt.Errorf("ano inválido")
-		}
-		y = parsedYear
+	if y == 0 {
+		y = now.Year()
 	}
 
-	startDate := time.Date(y, time.Month(m), 1, 0, 0, 0, 0, now.Location())
-	endDate := startDate.AddDate(0, 1, 0)
+	startMonth := time.Date(y, time.Month(m), 1, 0, 0, 0, 0, now.Location())
+	endMonth := startMonth.AddDate(0, 1, 0)
 
-	income, expense, err := s.repo.GetDashboardSummary(userID, startDate, endDate)
+	monthIncome, monthExpense, err := s.repo.GetDashboardSummary(userID, startMonth, endMonth)
 	if err != nil {
 		return nil, err
 	}
 
-	categories, err := s.repo.GetTopCategories(userID, startDate, endDate)
+	yearIncome, yearExpense, err := s.repo.GetYearSummary(userID, y)
 	if err != nil {
 		return nil, err
 	}
 
-	dailyExpenses, err := s.repo.GetDailyExpenses(userID, startDate, endDate)
+	lifetimeIncome, lifetimeExpense, err := s.repo.GetLifetimeBalance(userID)
 	if err != nil {
 		return nil, err
 	}
+
+	monthlyInstallments, err := s.repo.GetMonthlyInstallments(userID, startMonth, endMonth)
+	if err != nil {
+		return nil, err
+	}
+
+	futureInstallments, err := s.repo.GetFutureInstallments(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	biggestInstallment, remainingInstallments, err := s.repo.GetBiggestActiveInstallment(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	topCategories, _ := s.repo.GetTopCategories(userID, startMonth, endMonth)
+	dailyExpenses, _ := s.repo.GetDailyExpenses(userID, startMonth, endMonth)
 
 	return &DashboardDTO{
-		Income:        income,
-		Expenses:      expense,
-		Balance:       income - expense,
-		TopCategories: categories,
+		Month: BalanceDTO{
+			Income:  monthIncome,
+			Expense: monthExpense,
+			Balance: monthIncome - monthExpense,
+		},
+
+		Year: BalanceDTO{
+			Income:  yearIncome,
+			Expense: yearExpense,
+			Balance: yearIncome - yearExpense,
+		},
+
+		LifetimeBalance: lifetimeIncome - lifetimeExpense,
+
+		Installments: InstallmentInsightsDTO{
+			MonthlyInstallments:   monthlyInstallments,
+			FutureInstallments:    futureInstallments,
+			BiggestInstallment:    biggestInstallment,
+			RemainingInstallments: remainingInstallments,
+		},
+
+		TopCategories: topCategories,
 		DailyExpenses: dailyExpenses,
 	}, nil
 }
