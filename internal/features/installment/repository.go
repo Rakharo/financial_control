@@ -39,3 +39,11 @@ func (r *Repository) Create(installment *Installment) error {
 
 	return nil
 }
+
+func (r *Repository) Delete(id uint64) error {
+	query := `DELETE FROM installment_plans WHERE id = ?`
+
+	_, err := r.db.Exec(query, id)
+
+	return err
+}

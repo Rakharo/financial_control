@@ -175,7 +175,9 @@ func (h *Handler) DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	err = h.service.Delete(id)
+	userID := c.GetUint64("userID")
+
+	err = h.service.Delete(id, userID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

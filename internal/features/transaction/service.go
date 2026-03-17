@@ -22,6 +22,7 @@ type CategoryRepository interface {
 
 type InstallmentService interface {
 	Create(userID uint64, totalAmount float64, createdAt time.Time, dto *installment.InstallmentRequest) (*installment.InstallmentResponse, error)
+	DeleteByID(id uint64) error
 }
 
 type Service struct {
@@ -224,6 +225,17 @@ func (s *Service) Update(transactionID uint64, userID uint64, dto TransactionReq
 	return &response, nil
 }
 
-func (s *Service) Delete(id uint64) error {
-	return s.repo.Delete(id)
+func (s *Service) Delete(transactionID uint64, userID uint64) error {
+	tx, err := s.repo.GetByID(transactionID, userID)
+	if err != nil {
+		return err
+	}
+
+	// se NÃO tem parcelamento → delete normal
+	if tx.InstallmentPlanID == nil {
+		return s.repo.Delete(transactionID)
+	}
+
+	// se tem → deleta o plano inteiro
+	return s.installmentService.DeleteByID(*tx.InstallmentPlanID)
 }

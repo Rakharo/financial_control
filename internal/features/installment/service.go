@@ -4,6 +4,7 @@ import "time"
 
 type InstallmentRepository interface {
 	Create(installment *Installment) error
+	Delete(id uint64) error
 }
 
 type Service struct {
@@ -37,4 +38,8 @@ func (s *Service) Create(userID uint64, totalAmount float64, createdAt time.Time
 
 	return &response, nil
 
+}
+
+func (s *Service) DeleteByID(id uint64) error {
+	return s.repo.Delete(id)
 }
