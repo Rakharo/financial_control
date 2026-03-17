@@ -57,7 +57,7 @@ func (h *Handler) GetMe(c *gin.Context) {
 }
 
 // GetUsers godoc
-// @Summary Lista usuários
+// @Summary Listar usuários
 // @Description Retorna todos os usuários
 // @Tags Users
 // @Security BearerAuth
@@ -140,7 +140,7 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User created"})
+	c.JSON(http.StatusCreated, gin.H{"message": "Usuário criado com sucesso!"})
 }
 
 // UpdateUser godoc
@@ -149,52 +149,73 @@ func (h *Handler) CreateUser(c *gin.Context) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
-// @Param request body User true "User data"
+// @Param request body UpdateUserRequest true "User data"
 // @Success 200 {object} map[string]string
-// @Router /user/{id} [put]
+// @Router /user [put]
 func (h *Handler) UpdateUser(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-		return
-	}
 
-	var u User
-	if err := c.ShouldBindJSON(&u); err != nil {
+	userID := c.GetUint64("userID")
+
+	var req UpdateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
 		return
 	}
-	err = h.service.UpdateUser(id, u.Name, u.Email)
+
+	user, err := h.service.UpdateUser(userID, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User updated"})
+	c.JSON(http.StatusOK, user)
+}
+
+// UpdateUserPassword godoc
+// @Summary Nova senha
+// @Tags Users
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body PasswordRequest true "Password data"
+// @Success 200 {object} map[string]string
+// @Router /user/password [put]
+func (h *Handler) UpdateUserPassword(c *gin.Context) {
+
+	userID := c.GetUint64("userID")
+
+	var req PasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
+		return
+	}
+
+	err := h.service.UpdateUserPassword(userID, req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Senha atualizada"})
 }
 
 // DeleteUser godoc
 // @Summary Deletar usuário
 // @Tags Users
 // @Security BearerAuth
-// @Param id path int true "User ID"
 // @Success 200 {object} map[string]string
-// @Router /user/{id} [delete]
+// @Router /user [delete]
 func (h *Handler) DeleteUser(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-		return
-	}
 
-	err = h.service.DeleteUser(id)
+	userID := c.GetUint64("userID")
+
+	err := h.service.DeleteUser(userID)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "Usuário deletado!"})
 }

@@ -61,10 +61,10 @@ func (r *Repository) GetUserByLogin(login string) (*User, error) {
 	return &user, nil
 }
 
-func (r *Repository) GetUserById(id uint64) (*User, error) {
+func (r *Repository) GetUserById(userID uint64) (*User, error) {
 	query := "SELECT id, name, email, login FROM users WHERE id = ?"
 
-	row := r.db.QueryRow(query, id)
+	row := r.db.QueryRow(query, userID)
 
 	var u User
 	err := row.Scan(&u.ID, &u.Name, &u.Email, &u.Login)
@@ -76,6 +76,32 @@ func (r *Repository) GetUserById(id uint64) (*User, error) {
 	}
 
 	return &u, nil
+}
+
+func (r *Repository) GetUserWithPasswordById(userID uint64) (*User, error) {
+	query := `
+	SELECT id, name, email, login, password
+	FROM users
+	WHERE id = ?
+	`
+
+	row := r.db.QueryRow(query, userID)
+
+	var user User
+
+	err := row.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Login,
+		&user.Password,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (r *Repository) CreateUser(user *User) error {
@@ -100,20 +126,29 @@ func (r *Repository) CreateUser(user *User) error {
 	return nil
 }
 
-func (r *Repository) UpdateUser(id int64, name string, email string) error {
-	query := "UPDATE users SET name = ?, email = ? WHERE id = ?"
-	_, err := r.db.Exec(query, name, email, id)
-	if err != nil {
-		return fmt.Errorf("updateUser %q: %v", name, err)
-	}
-	return nil
+func (r *Repository) UpdateUser(userID uint64, user *User) error {
+	query := "UPDATE users SET name = ?, email = ?, login = ? WHERE id = ?"
+	_, err := r.db.Exec(
+		query,
+		user.Name,
+		user.Email,
+		user.Login,
+		userID,
+	)
+
+	return err
 }
 
-func (r *Repository) DeleteUser(id int64) error {
+func (r *Repository) UpdateUserPassword(userID uint64, password string) error {
+	query := "UPDATE users SET password = ? WHERE id = ?"
+
+	_, err := r.db.Exec(query, password, userID)
+	return err
+}
+
+func (r *Repository) DeleteUser(userID uint64) error {
 	query := "DELETE FROM users WHERE id = ?"
-	_, err := r.db.Exec(query, id)
-	if err != nil {
-		return fmt.Errorf("deleteUser %q: %v", id, err)
-	}
-	return nil
+
+	_, err := r.db.Exec(query, userID)
+	return err
 }

@@ -4,16 +4,20 @@ import (
 	"database/sql"
 	"errors"
 
+	"financial_control/internal/utils"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepository interface {
 	GetAllUsers() ([]User, error)
-	GetUserById(id uint64) (*User, error)
+	GetUserById(userID uint64) (*User, error)
+	GetUserWithPasswordById(id uint64) (*User, error)
 	GetUserByLogin(login string) (*User, error)
 	CreateUser(user *User) error
-	UpdateUser(id int64, name string, email string) error
-	DeleteUser(id int64) error
+	UpdateUser(userID uint64, user *User) error
+	UpdateUserPassword(userID uint64, password string) error
+	DeleteUser(userID uint64) error
 }
 
 type Service struct {
@@ -71,6 +75,10 @@ func (s *Service) GetUserById(id uint64) (*User, error) {
 
 func (s *Service) CreateUser(req CreateUserRequest) error {
 
+	if err := utils.ValidatePassword(req.Password); err != nil {
+		return err
+	}
+
 	existingUser, err := s.repo.GetUserByLogin(req.Login)
 
 	if err != nil && err != sql.ErrNoRows {
@@ -100,19 +108,84 @@ func (s *Service) CreateUser(req CreateUserRequest) error {
 	return s.repo.CreateUser(&user)
 }
 
-func (s *Service) UpdateUser(id int64, name string, email string) error {
-	if id <= 0 {
-		return errors.New("ID inválido")
+func (s *Service) UpdateUser(userID uint64, dto UpdateUserRequest) (*UserResponse, error) {
+	user, err := s.repo.GetUserById(userID)
+	if err != nil {
+		return nil, err
 	}
-	if name == "" || email == "" {
-		return errors.New("Nome e email são obrigatórios")
+
+	if user == nil {
+		return nil, errors.New("usuário não encontrado")
 	}
-	return s.repo.UpdateUser(id, name, email)
+
+	user.Name = dto.Name
+	user.Email = dto.Email
+	user.Login = dto.Login
+
+	err = s.repo.UpdateUser(userID, user)
+	if err != nil {
+		return nil, err
+	}
+
+	response := UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Login: user.Login,
+	}
+
+	return &response, nil
 }
 
-func (s *Service) DeleteUser(id int64) error {
-	if id <= 0 {
-		return errors.New("ID inválido")
+func (s *Service) UpdateUserPassword(userID uint64, password PasswordRequest) error {
+	user, err := s.repo.GetUserWithPasswordById(userID)
+	if err != nil {
+		return err
 	}
-	return s.repo.DeleteUser(id)
+
+	if user == nil {
+		return errors.New("usuário não encontrado")
+	}
+
+	//validacao da senha atual
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.Password),
+		[]byte(password.CurrentPassword),
+	)
+	if err != nil {
+		return errors.New("senha incorreta")
+	}
+
+	//validacao de senha nova e confirmacao de senha nova
+	if password.NewPassword != password.ConfirmPassword {
+		return errors.New("as senhas não coincidem")
+	}
+
+	//validacao de regra da senha
+	if err := utils.ValidatePassword(password.NewPassword); err != nil {
+		return err
+	}
+
+	//nova criptografia da senha
+	hash, err := bcrypt.GenerateFromPassword(
+		[]byte(password.NewPassword),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.UpdateUserPassword(userID, string(hash))
+}
+
+func (s *Service) DeleteUser(userID uint64) error {
+	user, err := s.repo.GetUserById(userID)
+	if err != nil {
+		return err
+	}
+
+	if user == nil {
+		return errors.New("usuário não encontrado")
+	}
+	return s.repo.DeleteUser(userID)
 }

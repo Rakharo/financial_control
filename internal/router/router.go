@@ -52,10 +52,11 @@ func SetupRouter(
 		users := protected.Group("/user")
 		{
 			users.GET("/me", userHandler.GetMe)
-			users.GET("", userHandler.GetUsers)          //GET Users List
-			users.GET("/:id", userHandler.GetUserByID)   // GET User by ID
-			users.PUT("/:id", userHandler.UpdateUser)    // PUT Update User
-			users.DELETE("/:id", userHandler.DeleteUser) // DELETE User
+			users.GET("", userHandler.GetUsers)                    //GET Users List
+			users.GET("/:id", userHandler.GetUserByID)             // GET User by ID
+			users.PUT("", userHandler.UpdateUser)                  // PUT Update User
+			users.PUT("/password", userHandler.UpdateUserPassword) // PUT Update Password
+			users.DELETE("", userHandler.DeleteUser)               // DELETE User
 		}
 
 		transactions := protected.Group("/transaction")
