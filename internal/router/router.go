@@ -27,6 +27,7 @@ func SetupRouter(
 	r := gin.Default()
 
 	r.Use(middleware.Logger())
+	r.Use(middleware.ErrorMiddleware())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -41,8 +42,8 @@ func SetupRouter(
 	public := r.Group("/")
 	{
 		r.POST("/auth/login", authHandler.Login)
-		public.POST("/auth/register", userHandler.CreateUser)
 		public.POST("/auth/refresh", authHandler.RefreshToken)
+		public.POST("/register", userHandler.CreateUser)
 	}
 
 	//ROTAS PROTEGIDAS

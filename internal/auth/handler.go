@@ -2,6 +2,7 @@ package auth
 
 import (
 	"financial_control/internal/features/user"
+	"financial_control/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,14 +30,21 @@ func (h *Handler) Login(c *gin.Context) {
 	var req LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": "invalid body"})
+		c.Error(utils.NewBadRequest("Informaçoes inválidas", err))
 		return
 	}
 
-	u, err := h.userService.Login(req.Login, req.Password)
+	var u *user.User
+	var err error
+
+	if req.GoogleToken != "" {
+		u, err = h.userService.LoginWithGoogle(req.GoogleToken)
+	} else {
+		u, err = h.userService.Login(req.Login, req.Password)
+	}
 
 	if err != nil {
-		c.JSON(401, gin.H{"error": "invalid credentials"})
+		c.Error(err)
 		return
 	}
 
@@ -71,21 +79,29 @@ func (h *Handler) RefreshToken(c *gin.Context) {
 	var req RefreshRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": "invalid body"})
+		c.Error(utils.NewBadRequest("Informaçoes inválidas", err))
 		return
 	}
 
 	claims, err := ValidateToken(req.RefreshToken)
 
 	if err != nil {
-		c.JSON(401, gin.H{"error": "invalid refresh token"})
+		c.Error(utils.NewUnauthorized("Refresh token inválido", err))
 		return
 	}
 
-	newToken, _ := GenerateAccessToken(claims.UserID)
+	user, err := h.userService.GetUserById(claims.UserID)
+	if err != nil || user == nil {
+		c.Error(utils.NewUnauthorized("Usuário não encontrado", err))
+		return
+	}
+
+	newAccessToken, _ := GenerateAccessToken(claims.UserID)
+	newRefreshToken, _ := GenerateRefreshToken(claims.UserID)
 
 	c.JSON(200, gin.H{
-		"access_token": newToken,
-		"expires_in":   900,
+		"access_token":  newAccessToken,
+		"refresh_token": newRefreshToken,
+		"expires_in":    900,
 	})
 }

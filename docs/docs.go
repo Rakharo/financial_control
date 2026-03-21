@@ -653,7 +653,7 @@ const docTemplate = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Lista usuários",
+                "summary": "Listar usuários",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -715,15 +715,6 @@ const docTemplate = `{
                     "Users"
                 ],
                 "summary": "Deletar usuário",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -954,11 +945,20 @@ const docTemplate = `{
                 "category": {
                     "type": "string"
                 },
+                "category_id": {
+                    "type": "integer"
+                },
                 "color": {
                     "type": "string"
                 },
                 "total": {
                     "type": "number"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_features_analytics.TransactionDTO"
+                    }
                 },
                 "user_id": {
                     "type": "integer"
@@ -1019,6 +1019,20 @@ const docTemplate = `{
                 },
                 "remaining_installments": {
                     "type": "integer"
+                }
+            }
+        },
+        "internal_features_analytics.TransactionDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
                 }
             }
         },

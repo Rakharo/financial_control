@@ -61,6 +61,7 @@ func (r *Repository) GetTopCategories(userID uint64, startDate time.Time, endDat
 
 	query := `
 		SELECT 
+			c.id,
 			c.name,
 			c.color,
 			c.user_id,
@@ -94,6 +95,7 @@ func (r *Repository) GetTopCategories(userID uint64, startDate time.Time, endDat
 		var c CategoryUsageDTO
 
 		err := rows.Scan(
+			&c.CategoryID,
 			&c.Category,
 			&c.Color,
 			&c.UserID,
@@ -108,6 +110,52 @@ func (r *Repository) GetTopCategories(userID uint64, startDate time.Time, endDat
 	}
 
 	return categories, nil
+}
+
+func (r *Repository) GetTransactionByCategory(userID uint64, categoryID uint64, startDate time.Time, endDate time.Time) ([]TransactionDTO, error) {
+
+	query := `
+		SELECT
+			t.id,
+			t.title,
+			CASE
+				WHEN t.installment_number IS NOT NULL THEN t.installment_value
+				ELSE t.amount
+			END as value
+		FROM transactions t
+		WHERE t.user_id = ?
+		AND t.type = 'expense'
+		AND t.category_id = ?
+		AND t.transaction_date >= ?
+		AND t.transaction_date < ?
+		ORDER BY t.transaction_date DESC
+	`
+	rows, err := r.db.Query(query, userID, categoryID, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var transactions []TransactionDTO
+
+	for rows.Next() {
+
+		var t TransactionDTO
+
+		err := rows.Scan(
+			&t.ID,
+			&t.Title,
+			&t.Value,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		transactions = append(transactions, t)
+	}
+
+	return transactions, nil
+
 }
 
 func (r *Repository) GetDailyExpenses(userID uint64, startDate time.Time, endDate time.Time) ([]DailyExpenseDTO, error) {

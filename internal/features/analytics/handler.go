@@ -38,9 +38,7 @@ func (h *Handler) GetDashboard(c *gin.Context) {
 	dashboard, err := h.service.GetDashboard(userID, month, year)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.Error(err)
 		return
 	}
 

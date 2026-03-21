@@ -63,10 +63,16 @@ definitions:
     properties:
       category:
         type: string
+      category_id:
+        type: integer
       color:
         type: string
       total:
         type: number
+      transactions:
+        items:
+          $ref: '#/definitions/internal_features_analytics.TransactionDTO'
+        type: array
       user_id:
         type: integer
     type: object
@@ -106,6 +112,15 @@ definitions:
         type: number
       remaining_installments:
         type: integer
+    type: object
+  internal_features_analytics.TransactionDTO:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      value:
+        type: number
     type: object
   internal_features_categories.Category:
     properties:
@@ -648,12 +663,6 @@ paths:
       - Transactions
   /user:
     delete:
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
       responses:
         "200":
           description: OK
@@ -679,7 +688,7 @@ paths:
             type: array
       security:
       - BearerAuth: []
-      summary: Lista usuários
+      summary: Listar usuários
       tags:
       - Users
     put:

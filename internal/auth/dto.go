@@ -3,8 +3,9 @@ package auth
 import "financial_control/internal/features/user"
 
 type LoginRequest struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+	Login       string `json:"login"`
+	Password    string `json:"password"`
+	GoogleToken string `json:"googleToken,omitempty"`
 }
 
 type LoginResponse struct {

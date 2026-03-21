@@ -10,10 +10,12 @@ type DashboardDTO struct {
 }
 
 type CategoryUsageDTO struct {
-	Category string  `json:"category"`
-	Total    float64 `json:"total"`
-	Color    string  `json:"color"`
-	UserID   *uint64 `json:"user_id"`
+	CategoryID   uint64           `json:"category_id"`
+	Category     string           `json:"category"`
+	Total        float64          `json:"total"`
+	Color        string           `json:"color"`
+	UserID       *uint64          `json:"user_id"`
+	Transactions []TransactionDTO `json:"transactions"`
 }
 
 type DailyExpenseDTO struct {
@@ -32,4 +34,10 @@ type InstallmentInsightsDTO struct {
 	FutureInstallments    float64 `json:"future_installments"`
 	BiggestInstallment    float64 `json:"biggest_installment"`
 	RemainingInstallments int     `json:"remaining_installments"`
+}
+
+type TransactionDTO struct {
+	ID    uint64  `json:"id"`
+	Title string  `json:"title"`
+	Value float64 `json:"value"`
 }

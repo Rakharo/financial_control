@@ -61,6 +61,35 @@ func (r *Repository) GetUserByLogin(login string) (*User, error) {
 	return &user, nil
 }
 
+func (r *Repository) GetUserByEmail(email string) (*User, error) {
+
+	query := `
+	SELECT id, name, email, login
+	FROM users
+	WHERE email = ?
+	`
+
+	row := r.db.QueryRow(query, email)
+
+	var user User
+
+	err := row.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Login,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (r *Repository) GetUserById(userID uint64) (*User, error) {
 	query := "SELECT id, name, email, login FROM users WHERE id = ?"
 

@@ -2,7 +2,9 @@ package user
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
+	"net/http"
 
 	"financial_control/internal/utils"
 
@@ -14,6 +16,7 @@ type UserRepository interface {
 	GetUserById(userID uint64) (*User, error)
 	GetUserWithPasswordById(id uint64) (*User, error)
 	GetUserByLogin(login string) (*User, error)
+	GetUserByEmail(email string) (*User, error)
 	CreateUser(user *User) error
 	UpdateUser(userID uint64, user *User) error
 	UpdateUserPassword(userID uint64, password string) error
@@ -30,9 +33,12 @@ func NewService(repo UserRepository) *Service {
 
 func (s *Service) Login(login string, password string) (*User, error) {
 	user, err := s.repo.GetUserByLogin(login)
-
 	if err != nil {
-		return nil, errors.New("invalid credentials")
+		return nil, utils.NewUnauthorized("Login ou senha inválidos!", nil)
+	}
+
+	if user == nil {
+		return nil, utils.NewUnauthorized("Login ou senha inválidos!", nil)
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -41,7 +47,51 @@ func (s *Service) Login(login string, password string) (*User, error) {
 	)
 
 	if err != nil {
-		return nil, errors.New("invalid credentials")
+		return nil, utils.NewUnauthorized("Login ou senha inválidos", err)
+	}
+
+	return user, nil
+}
+
+func (s *Service) LoginWithGoogle(token string) (*User, error) {
+	resp, err := http.Get("https://oauth2.googleapis.com/tokeninfo?id_token=" + token)
+	if err != nil {
+		return nil, utils.NewUnauthorized("Token inválido", err)
+	}
+	defer resp.Body.Close()
+
+	var data map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return nil, utils.NewUnauthorized("Erro ao validar token", err)
+	}
+
+	email, _ := data["email"].(string)
+	name, _ := data["name"].(string)
+
+	if email == "" {
+		return nil, utils.NewUnauthorized("Email não encontrado no token", nil)
+	}
+
+	if data["aud"] != "886522038636-kbjmui0f7t0h4lcdg4lrfc7sik168jsu.apps.googleusercontent.com" {
+		return nil, utils.NewUnauthorized("Token inválido para este app", nil)
+	}
+
+	user, err := s.repo.GetUserByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		user = &User{
+			Name:  name,
+			Email: email,
+			Login: email,
+		}
+
+		err = s.repo.CreateUser(user)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return user, nil
