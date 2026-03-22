@@ -54,6 +54,12 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
+	providers, err := h.authService.GetUserProviders(u.ID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
 	c.JSON(200, LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -64,7 +70,39 @@ func (h *Handler) Login(c *gin.Context) {
 			Email: u.Email,
 			Phone: u.Phone,
 		},
+		Providers: providers,
 	})
+}
+
+// LinkGoogle godoc
+// @Summary Link google
+// @Description Linka conta de usuário padrão ao google
+// @Tags Auth
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body object true "Google token"
+// @Success 200 {object} map[string]string
+// @Router /auth/link-google [post]
+func (h *Handler) LinkGoogle(c *gin.Context) {
+	userID := c.GetUint64("userID")
+
+	var req struct {
+		GoogleToken string `json:"googleToken"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.Error(utils.NewBadRequest("Informaçoes inválidas", err))
+		return
+	}
+
+	err := h.authService.LinkGoogleAccount(userID, req.GoogleToken)
+	if err != nil {
+		c.Error(utils.NewBadRequest("Erro ao vincular conta. Email do Google diferente do usuário logado", err))
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Conta Google vinculada"})
 }
 
 // RefreshToken godoc
@@ -98,7 +136,7 @@ func (h *Handler) RefreshToken(c *gin.Context) {
 }
 
 // UpdateUserPassword godoc
-// @Summary Nova senha
+// @Summary Alteraçao de senha
 // @Tags Auth
 // @Security BearerAuth
 // @Accept json
@@ -124,4 +162,31 @@ func (h *Handler) UpdateUserPassword(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Senha atualizada"})
+}
+
+// Logout godoc
+// @Summary logout de usuário
+// @Tags Auth
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body RefreshRequest true "Refresh token"
+// @Success 200 {object} map[string]string
+// @Router /auth/logout [post]
+func (h *Handler) Logout(c *gin.Context) {
+	var req RefreshRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid body"})
+		return
+	}
+
+	userID := c.GetUint64("userID")
+	err := h.authService.Logout(userID, req.RefreshToken)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Logout realizado"})
 }

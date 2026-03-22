@@ -29,10 +29,11 @@ func main() {
 	}
 
 	userRepo := user.NewRepository(db)
-	userService := user.NewService(userRepo)
+	authRepo := auth.NewRepository(db)
+
+	userService := user.NewService(userRepo, authRepo)
 	userHandler := user.NewHandler(userService)
 
-	authRepo := auth.NewRepository(db)
 	authService := auth.NewService(*authRepo, *userRepo)
 	authHandler := auth.NewHandler(authService, userService)
 

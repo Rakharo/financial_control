@@ -54,6 +54,8 @@ func SetupRouter(
 		{
 			auth.PUT("/password", authHandler.UpdateUserPassword)
 			public.POST("/refresh", authHandler.RefreshToken)
+			auth.POST("/logout", authHandler.Logout)
+			auth.POST("/link-google", authHandler.LinkGoogle)
 		}
 
 		users := protected.Group("/user")

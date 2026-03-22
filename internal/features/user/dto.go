@@ -22,4 +22,5 @@ type UserResponse struct {
 	Phone     *string   `json:"phone"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Providers *[]string `json:"providers"`
 }

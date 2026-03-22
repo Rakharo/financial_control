@@ -28,6 +28,10 @@ definitions:
         type: string
       phone:
         type: string
+      providers:
+        items:
+          type: string
+        type: array
       updated_at:
         type: string
     type: object
@@ -118,6 +122,10 @@ definitions:
         type: string
       expires_in:
         type: integer
+      providers:
+        items:
+          type: string
+        type: array
       refresh_token:
         type: string
       user:
@@ -267,6 +275,10 @@ definitions:
         type: string
       phone:
         type: string
+      providers:
+        items:
+          type: string
+        type: array
       updated_at:
         type: string
     type: object
@@ -299,6 +311,32 @@ paths:
       summary: Dashboard financeiro
       tags:
       - Analytics
+  /auth/link-google:
+    post:
+      consumes:
+      - application/json
+      description: Linka conta de usuário padrão ao google
+      parameters:
+      - description: Google token
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Link google
+      tags:
+      - Auth
   /auth/login:
     post:
       consumes:
@@ -327,6 +365,31 @@ paths:
       summary: Login de usuário
       tags:
       - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_auth.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: logout de usuário
+      tags:
+      - Auth
   /auth/password:
     put:
       consumes:
@@ -349,7 +412,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Nova senha
+      summary: Alteraçao de senha
       tags:
       - Auth
   /auth/refresh:

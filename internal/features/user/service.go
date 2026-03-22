@@ -19,16 +19,21 @@ type UserRepository interface {
 	DeleteUser(userID uint64) error
 }
 
-type Service struct {
-	repo UserRepository
+type AuthRepository interface {
+	GetProvidersByUserID(userID uint64) ([]string, error)
 }
 
-func NewService(repo UserRepository) *Service {
-	return &Service{repo: repo}
+type Service struct {
+	userRepo UserRepository
+	authRepo AuthRepository
+}
+
+func NewService(userRepo UserRepository, authRepo AuthRepository) *Service {
+	return &Service{userRepo: userRepo, authRepo: authRepo}
 }
 
 func (s *Service) GetAllUsers() ([]UserResponse, error) {
-	users, err := s.repo.GetAllUsers()
+	users, err := s.userRepo.GetAllUsers()
 	if err != nil {
 		return nil, err
 	}
@@ -48,11 +53,31 @@ func (s *Service) GetAllUsers() ([]UserResponse, error) {
 	return response, nil
 }
 
-func (s *Service) GetUserById(id uint64) (*User, error) {
-	if id <= 0 {
-		return nil, errors.New("ID inválido")
+func (s *Service) GetUserById(userID uint64) (*UserResponse, error) {
+	user, err := s.userRepo.GetUserById(userID)
+	if err != nil {
+		return nil, err
 	}
-	return s.repo.GetUserById(id)
+	if user == nil {
+		return nil, errors.New("usuário não encontrado")
+	}
+
+	providers, err := s.authRepo.GetProvidersByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserResponse{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Providers: &providers,
+	}, nil
+
+	// return s.userRepo.GetUserById(userID)
 }
 
 func (s *Service) CreateUser(req CreateUserRequest) error {
@@ -61,7 +86,7 @@ func (s *Service) CreateUser(req CreateUserRequest) error {
 		return err
 	}
 
-	existingUser, err := s.repo.GetUserByEmail(req.Email)
+	existingUser, err := s.userRepo.GetUserByEmail(req.Email)
 
 	if err != nil && err != sql.ErrNoRows {
 		return err
@@ -88,11 +113,11 @@ func (s *Service) CreateUser(req CreateUserRequest) error {
 		CreatedAt: time.Now(),
 	}
 
-	return s.repo.CreateUser(&user)
+	return s.userRepo.CreateUser(&user)
 }
 
 func (s *Service) UpdateUser(userID uint64, dto UpdateUserRequest) (*UserResponse, error) {
-	user, err := s.repo.GetUserById(userID)
+	user, err := s.userRepo.GetUserById(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +130,7 @@ func (s *Service) UpdateUser(userID uint64, dto UpdateUserRequest) (*UserRespons
 	user.Email = dto.Email
 	user.Phone = dto.Phone
 
-	err = s.repo.UpdateUser(userID, user)
+	err = s.userRepo.UpdateUser(userID, user)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +147,7 @@ func (s *Service) UpdateUser(userID uint64, dto UpdateUserRequest) (*UserRespons
 }
 
 func (s *Service) DeleteUser(userID uint64) error {
-	user, err := s.repo.GetUserById(userID)
+	user, err := s.userRepo.GetUserById(userID)
 	if err != nil {
 		return err
 	}
@@ -130,5 +155,5 @@ func (s *Service) DeleteUser(userID uint64) error {
 	if user == nil {
 		return errors.New("usuário não encontrado")
 	}
-	return s.repo.DeleteUser(userID)
+	return s.userRepo.DeleteUser(userID)
 }

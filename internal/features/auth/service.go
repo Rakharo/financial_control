@@ -96,6 +96,10 @@ func (s *Service) LoginWithGoogle(token string) (*user.User, string, string, err
 		return nil, "", "", utils.NewUnauthorized("Erro ao validar token", err)
 	}
 
+	if data["aud"] != "886522038636-kbjmui0f7t0h4lcdg4lrfc7sik168jsu.apps.googleusercontent.com" {
+		return nil, "", "", utils.NewUnauthorized("Token inválido para este app", nil)
+	}
+
 	email, _ := data["email"].(string)
 	name, _ := data["name"].(string)
 	providerID, _ := data["sub"].(string)
@@ -148,17 +152,63 @@ func (s *Service) LoginWithGoogle(token string) (*user.User, string, string, err
 		}
 	}
 
-	if data["aud"] != "886522038636-kbjmui0f7t0h4lcdg4lrfc7sik168jsu.apps.googleusercontent.com" {
-		return nil, "", "", utils.NewUnauthorized("Token inválido para este app", nil)
-	}
-
 	accessToken, refreshToken := s.createTokens(u.ID)
 
 	return u, accessToken, refreshToken, nil
 }
 
+func (s *Service) LinkGoogleAccount(userID uint64, token string) error {
+	resp, err := http.Get("https://oauth2.googleapis.com/tokeninfo?id_token=" + token)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	var data map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return err
+	}
+
+	email, _ := data["email"].(string)
+	providerID, _ := data["sub"].(string)
+
+	if email == "" || providerID == "" {
+		return errors.New("dados inválidos do Google")
+	}
+
+	user, err := s.userRepo.GetUserById(userID)
+	if err != nil || user == nil {
+		return errors.New("usuário não encontrado")
+	}
+
+	if user.Email != email {
+		return errors.New("email do Google diferente do usuário logado")
+	}
+
+	existing, err := s.authRepo.GetUserProvider("google", providerID)
+	if err != nil {
+		return err
+	}
+	if existing != nil {
+		return errors.New("conta Google já vinculada")
+	}
+
+	up := &UserProvider{
+		UserID:         int(userID),
+		ProviderName:   "google",
+		ProviderUserID: providerID,
+		CreatedAt:      time.Now(),
+	}
+
+	return s.authRepo.CreateUserProvider(up)
+}
+
 func (s *Service) RefreshToken(token string) (string, string, error) {
 	rt, err := s.authRepo.GetRefreshToken(token)
+	if time.Now().After(rt.ExpiresAt) {
+		_ = s.authRepo.DeleteRefreshToken(token)
+		return "", "", utils.NewUnauthorized("Refresh token expirado", nil)
+	}
 	if err != nil {
 		return "", "", err
 	}
@@ -175,6 +225,19 @@ func (s *Service) RefreshToken(token string) (string, string, error) {
 	return accessToken, refreshToken, nil
 }
 
+func (s *Service) Logout(userID uint64, token string) error {
+	rt, err := s.authRepo.GetRefreshToken(token)
+	if err != nil {
+		return err
+	}
+
+	if rt == nil || uint64(rt.UserID) != userID {
+		return errors.New("token inválido")
+	}
+
+	return s.authRepo.DeleteRefreshToken(token)
+}
+
 func (s *Service) createTokens(userID uint64) (string, string) {
 	accessToken, _ := GenerateAccessToken(userID)
 	refreshToken, _ := GenerateRefreshToken(userID)
@@ -188,8 +251,12 @@ func (s *Service) createTokens(userID uint64) (string, string) {
 	}
 	err := s.authRepo.CreateRefreshToken(rt)
 	if err != nil {
-		panic(err)
+		return "", ""
 	}
 
 	return accessToken, refreshToken
+}
+
+func (s *Service) GetUserProviders(userID uint64) ([]string, error) {
+	return s.authRepo.GetProvidersByUserID(userID)
 }

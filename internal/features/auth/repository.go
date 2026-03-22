@@ -67,6 +67,32 @@ func (r *Repository) GetUserProvider(providerName, providerUserID string) (*User
 	return &up, nil
 }
 
+func (r *Repository) GetProvidersByUserID(userID uint64) ([]string, error) {
+	query := `
+	SELECT provider_name
+	FROM user_providers
+	WHERE user_id = ?
+	`
+
+	rows, err := r.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var providers []string
+
+	for rows.Next() {
+		var p string
+		if err := rows.Scan(&p); err != nil {
+			return nil, err
+		}
+		providers = append(providers, p)
+	}
+
+	return providers, nil
+}
+
 func (r *Repository) CreateUserProvider(up *UserProvider) error {
 	query := `
 	INSERT INTO user_providers (user_id, provider_name, provider_user_id, created_at)
