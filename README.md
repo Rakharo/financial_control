@@ -145,7 +145,7 @@ swag init -g cmd/api/main.go --parseDependency --parseInternal
 ```
 
 ### Documentação da API (Swagger)
-![Swagger](assets/images/swagger.png)
+![Swagger](assets/images/swaggo.png)
 
 
 ### Rodar aplicação
