@@ -132,25 +132,35 @@ Variáveis utilizadas:
 Configuração localizada em:
 `internal/database/connection.go`
 
+### Estrutura do banco de dados
+<p align="center">
+  <img src="assets/images/tableUsers.png" width="700"/>
+</p>
+
 ---
 
 ## Como rodar
 
-Utilizado também o swaggo; swagger no Go para melhor documentação da API.
-(Qualquer alteração no handler, deve rodar o comando do swaggo)
-
-//Comando para atualizar swagger depois de atualizações no código:
-swag init -g cmd/api/main.go --parseDependency --parseInternal 
-
-//Comando para rodar o programa:
-go run cmd/api/main.go
-
-
-
+### Gerar documentação Swagger
 ```bash
-swag init -g cmd/api/main.go --parseDependency --parseInternal 
+swag init -g cmd/api/main.go --parseDependency --parseInternal
+```
+
+### Documentação da API (Swagger)
+<p align="center">
+  <img src="assets/images/swaggo.png" width="700"/>
+</p>
+
+
+### Rodar aplicação
+```bash
 go run cmd/api/main.go
 ```
+
+### Testes de endpoints (Postman)
+<p align="center">
+  <img src="assets/images/postman.png" width="700"/>
+</p>
 
 ---
 
