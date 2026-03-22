@@ -133,9 +133,7 @@ Configuração localizada em:
 `internal/database/connection.go`
 
 ### Estrutura do banco de dados
-<p align="center">
-  <img src="assets/images/tableUsers.png" width="700"/>
-</p>
+![MySQL](assets/images/tableUsers.png)
 
 ---
 
@@ -147,9 +145,7 @@ swag init -g cmd/api/main.go --parseDependency --parseInternal
 ```
 
 ### Documentação da API (Swagger)
-<p align="center">
-  <img src="assets/images/swaggo.png" width="700"/>
-</p>
+![Swagger](assets/images/swagger.png)
 
 
 ### Rodar aplicação
@@ -158,9 +154,8 @@ go run cmd/api/main.go
 ```
 
 ### Testes de endpoints (Postman)
-<p align="center">
-  <img src="assets/images/postman.png" width="700"/>
-</p>
+![Postman](assets/images/postman.png)
+
 
 ---
 
