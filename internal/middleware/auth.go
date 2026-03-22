@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"financial_control/internal/auth"
+	"financial_control/internal/features/auth"
 
 	"github.com/gin-gonic/gin"
 )

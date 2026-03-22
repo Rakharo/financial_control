@@ -16,14 +16,14 @@ func NewRepository(db *sql.DB) *Repository {
 func (r *Repository) GetAllUsers() ([]User, error) {
 	var users []User
 
-	rows, err := r.db.Query("SELECT id, name, email, login FROM users")
+	rows, err := r.db.Query("SELECT id, name, email, phone, created_at, updated_at FROM users")
 	if err != nil {
 		return nil, fmt.Errorf("GetAllUsers: %v", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var alb User
-		if err := rows.Scan(&alb.ID, &alb.Name, &alb.Email, &alb.Login); err != nil {
+		if err := rows.Scan(&alb.ID, &alb.Name, &alb.Email, &alb.Phone, &alb.CreatedAt, &alb.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("GetAllUsers: %v", err)
 		}
 		users = append(users, alb)
@@ -34,37 +34,10 @@ func (r *Repository) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
-func (r *Repository) GetUserByLogin(login string) (*User, error) {
-
-	query := `
-	SELECT id, name, email, login, password
-	FROM users
-	WHERE login = ?
-	`
-
-	row := r.db.QueryRow(query, login)
-
-	var user User
-
-	err := row.Scan(
-		&user.ID,
-		&user.Name,
-		&user.Email,
-		&user.Login,
-		&user.Password,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
 func (r *Repository) GetUserByEmail(email string) (*User, error) {
 
 	query := `
-	SELECT id, name, email, login
+	SELECT id, name, email, phone, password, created_at, updated_at
 	FROM users
 	WHERE email = ?
 	`
@@ -77,7 +50,10 @@ func (r *Repository) GetUserByEmail(email string) (*User, error) {
 		&user.ID,
 		&user.Name,
 		&user.Email,
-		&user.Login,
+		&user.Phone,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
 	)
 
 	if err != nil {
@@ -91,12 +67,12 @@ func (r *Repository) GetUserByEmail(email string) (*User, error) {
 }
 
 func (r *Repository) GetUserById(userID uint64) (*User, error) {
-	query := "SELECT id, name, email, login FROM users WHERE id = ?"
+	query := "SELECT id, name, email, phone, created_at, updated_at FROM users WHERE id = ?"
 
 	row := r.db.QueryRow(query, userID)
 
 	var u User
-	err := row.Scan(&u.ID, &u.Name, &u.Email, &u.Login)
+	err := row.Scan(&u.ID, &u.Name, &u.Email, &u.Phone, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // usuário não encontrado
@@ -107,71 +83,44 @@ func (r *Repository) GetUserById(userID uint64) (*User, error) {
 	return &u, nil
 }
 
-func (r *Repository) GetUserWithPasswordById(userID uint64) (*User, error) {
-	query := `
-	SELECT id, name, email, login, password
-	FROM users
-	WHERE id = ?
-	`
-
-	row := r.db.QueryRow(query, userID)
-
-	var user User
-
-	err := row.Scan(
-		&user.ID,
-		&user.Name,
-		&user.Email,
-		&user.Login,
-		&user.Password,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
 func (r *Repository) CreateUser(user *User) error {
-
 	query := `
-	INSERT INTO users (name, email, login, password)
+	INSERT INTO users (name, email, password, phone)
 	VALUES (?, ?, ?, ?)
 	`
 
-	_, err := r.db.Exec(
+	result, err := r.db.Exec(
 		query,
 		user.Name,
 		user.Email,
-		user.Login,
 		user.Password,
+		user.Phone,
 	)
 
 	if err != nil {
 		return err
 	}
 
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	user.ID = uint64(id)
+
 	return nil
 }
 
 func (r *Repository) UpdateUser(userID uint64, user *User) error {
-	query := "UPDATE users SET name = ?, email = ?, login = ? WHERE id = ?"
+	query := "UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?"
 	_, err := r.db.Exec(
 		query,
 		user.Name,
 		user.Email,
-		user.Login,
+		user.Phone,
 		userID,
 	)
 
-	return err
-}
-
-func (r *Repository) UpdateUserPassword(userID uint64, password string) error {
-	query := "UPDATE users SET password = ? WHERE id = ?"
-
-	_, err := r.db.Exec(query, password, userID)
 	return err
 }
 

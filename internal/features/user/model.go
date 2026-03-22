@@ -1,9 +1,13 @@
 package user
 
+import "time"
+
 type User struct {
-	ID       uint64 `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Login    string `json:"login"`
-	Password string `json:"-"`
+	ID        uint64    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"-"`
+	Phone     *string   `json:"phone"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

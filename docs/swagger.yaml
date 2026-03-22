@@ -18,36 +18,17 @@ definitions:
     type: object
   financial_control_internal_features_user.UserResponse:
     properties:
+      created_at:
+        type: string
       email:
         type: string
       id:
         type: integer
-      login:
-        type: string
       name:
         type: string
-    type: object
-  internal_auth.LoginRequest:
-    properties:
-      login:
+      phone:
         type: string
-      password:
-        type: string
-    type: object
-  internal_auth.LoginResponse:
-    properties:
-      access_token:
-        type: string
-      expires_in:
-        type: integer
-      refresh_token:
-        type: string
-      user:
-        $ref: '#/definitions/financial_control_internal_features_user.UserResponse'
-    type: object
-  internal_auth.RefreshRequest:
-    properties:
-      refresh_token:
+      updated_at:
         type: string
     type: object
   internal_features_analytics.BalanceDTO:
@@ -121,6 +102,40 @@ definitions:
         type: string
       value:
         type: number
+    type: object
+  internal_features_auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      googleToken:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_features_auth.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/financial_control_internal_features_user.UserResponse'
+    type: object
+  internal_features_auth.PasswordRequest:
+    properties:
+      confirmPassword:
+        type: string
+      currentPassword:
+        type: string
+      newPassword:
+        type: string
+    type: object
+  internal_features_auth.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
     type: object
   internal_features_categories.Category:
     properties:
@@ -224,40 +239,35 @@ definitions:
     properties:
       email:
         type: string
-      login:
-        type: string
       name:
         type: string
       password:
         type: string
-    type: object
-  internal_features_user.PasswordRequest:
-    properties:
-      confirmPassword:
-        type: string
-      currentPassword:
-        type: string
-      newPassword:
+      phone:
         type: string
     type: object
   internal_features_user.UpdateUserRequest:
     properties:
       email:
         type: string
-      login:
-        type: string
       name:
+        type: string
+      phone:
         type: string
     type: object
   internal_features_user.UserResponse:
     properties:
+      created_at:
+        type: string
       email:
         type: string
       id:
         type: integer
-      login:
-        type: string
       name:
+        type: string
+      phone:
+        type: string
+      updated_at:
         type: string
     type: object
 info:
@@ -300,14 +310,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_auth.LoginRequest'
+          $ref: '#/definitions/internal_features_auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_auth.LoginResponse'
+            $ref: '#/definitions/internal_features_auth.LoginResponse'
         "401":
           description: Unauthorized
           schema:
@@ -315,6 +325,31 @@ paths:
               type: string
             type: object
       summary: Login de usuário
+      tags:
+      - Auth
+  /auth/password:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_auth.PasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Nova senha
       tags:
       - Auth
   /auth/refresh:
@@ -328,14 +363,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_auth.RefreshRequest'
+          $ref: '#/definitions/internal_features_auth.RefreshRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_auth.LoginResponse'
+            $ref: '#/definitions/internal_features_auth.LoginResponse'
         "401":
           description: Unauthorized
           schema:
@@ -759,31 +794,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Retorna usuário logado
-      tags:
-      - Users
-  /user/password:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Password data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/internal_features_user.PasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Nova senha
       tags:
       - Users
 securityDefinitions:

@@ -1,8 +1,8 @@
 package router
 
 import (
-	"financial_control/internal/auth"
 	"financial_control/internal/features/analytics"
+	"financial_control/internal/features/auth"
 	category "financial_control/internal/features/categories"
 	"financial_control/internal/features/transaction"
 	"financial_control/internal/features/user"
@@ -50,14 +50,19 @@ func SetupRouter(
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
+		auth := protected.Group("/auth")
+		{
+			auth.PUT("/password", authHandler.UpdateUserPassword)
+			public.POST("/refresh", authHandler.RefreshToken)
+		}
+
 		users := protected.Group("/user")
 		{
 			users.GET("/me", userHandler.GetMe)
-			users.GET("", userHandler.GetUsers)                    //GET Users List
-			users.GET("/:id", userHandler.GetUserByID)             // GET User by ID
-			users.PUT("", userHandler.UpdateUser)                  // PUT Update User
-			users.PUT("/password", userHandler.UpdateUserPassword) // PUT Update Password
-			users.DELETE("", userHandler.DeleteUser)               // DELETE User
+			users.GET("", userHandler.GetUsers)        //GET Users List
+			users.GET("/:id", userHandler.GetUserByID) // GET User by ID
+			users.PUT("", userHandler.UpdateUser)      // PUT Update User
+			users.DELETE("", userHandler.DeleteUser)   // DELETE User
 		}
 
 		transactions := protected.Group("/transaction")

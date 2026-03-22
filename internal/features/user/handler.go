@@ -50,7 +50,7 @@ func (h *Handler) GetMe(c *gin.Context) {
 		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
-		Login: user.Login,
+		Phone: user.Phone,
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -78,7 +78,7 @@ func (h *Handler) GetUsers(c *gin.Context) {
 			ID:    u.ID,
 			Name:  u.Name,
 			Email: u.Email,
-			Login: u.Login,
+			Phone: u.Phone,
 		})
 	}
 
@@ -169,35 +169,6 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
-}
-
-// UpdateUserPassword godoc
-// @Summary Nova senha
-// @Tags Users
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param request body PasswordRequest true "Password data"
-// @Success 200 {object} map[string]string
-// @Router /user/password [put]
-func (h *Handler) UpdateUserPassword(c *gin.Context) {
-
-	userID := c.GetUint64("userID")
-
-	var req PasswordRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
-		return
-	}
-
-	err := h.service.UpdateUserPassword(userID, req)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Senha atualizada"})
 }
 
 // DeleteUser godoc

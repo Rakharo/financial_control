@@ -10,9 +10,9 @@ package main
 // @BasePath /
 
 import (
-	"financial_control/internal/auth"
 	connection "financial_control/internal/database"
 	"financial_control/internal/features/analytics"
+	"financial_control/internal/features/auth"
 	category "financial_control/internal/features/categories"
 	"financial_control/internal/features/installment"
 	"financial_control/internal/features/transaction"
@@ -32,7 +32,9 @@ func main() {
 	userService := user.NewService(userRepo)
 	userHandler := user.NewHandler(userService)
 
-	authHandler := auth.NewHandler(userService)
+	authRepo := auth.NewRepository(db)
+	authService := auth.NewService(*authRepo, *userRepo)
+	authHandler := auth.NewHandler(authService, userService)
 
 	installmentRepo := installment.NewRepository(db)
 	installmentService := installment.NewService(installmentRepo)

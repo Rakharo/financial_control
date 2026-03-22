@@ -74,7 +74,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_auth.LoginRequest"
+                            "$ref": "#/definitions/internal_features_auth.LoginRequest"
                         }
                     }
                 ],
@@ -82,11 +82,52 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_auth.LoginResponse"
+                            "$ref": "#/definitions/internal_features_auth.LoginResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Nova senha",
+                "parameters": [
+                    {
+                        "description": "Password data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_features_auth.PasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -117,7 +158,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_auth.RefreshRequest"
+                            "$ref": "#/definitions/internal_features_auth.RefreshRequest"
                         }
                     }
                 ],
@@ -125,7 +166,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_auth.LoginResponse"
+                            "$ref": "#/definitions/internal_features_auth.LoginResponse"
                         }
                     },
                     "401": {
@@ -761,47 +802,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/password": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Nova senha",
-                "parameters": [
-                    {
-                        "description": "Password data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_features_user.PasswordRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/user/{id}": {
             "get": {
                 "security": [
@@ -875,52 +875,22 @@ const docTemplate = `{
         "financial_control_internal_features_user.UserResponse": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "login": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "internal_auth.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "login": {
+                },
+                "phone": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_auth.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "expires_in": {
-                    "type": "integer"
-                },
-                "refresh_token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/financial_control_internal_features_user.UserResponse"
-                }
-            }
-        },
-        "internal_auth.RefreshRequest": {
-            "type": "object",
-            "properties": {
-                "refresh_token": {
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -1033,6 +1003,59 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "number"
+                }
+            }
+        },
+        "internal_features_auth.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "googleToken": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_features_auth.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/financial_control_internal_features_user.UserResponse"
+                }
+            }
+        },
+        "internal_features_auth.PasswordRequest": {
+            "type": "object",
+            "properties": {
+                "confirmPassword": {
+                    "type": "string"
+                },
+                "currentPassword": {
+                    "type": "string"
+                },
+                "newPassword": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_features_auth.RefreshRequest": {
+            "type": "object",
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
                 }
             }
         },
@@ -1186,27 +1209,13 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "login": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
                 "password": {
                     "type": "string"
-                }
-            }
-        },
-        "internal_features_user.PasswordRequest": {
-            "type": "object",
-            "properties": {
-                "confirmPassword": {
-                    "type": "string"
                 },
-                "currentPassword": {
-                    "type": "string"
-                },
-                "newPassword": {
+                "phone": {
                     "type": "string"
                 }
             }
@@ -1217,10 +1226,10 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "login": {
+                "name": {
                     "type": "string"
                 },
-                "name": {
+                "phone": {
                     "type": "string"
                 }
             }
@@ -1228,16 +1237,22 @@ const docTemplate = `{
         "internal_features_user.UserResponse": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "login": {
+                "name": {
                     "type": "string"
                 },
-                "name": {
+                "phone": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
