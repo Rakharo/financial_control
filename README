@@ -1,6 +1,170 @@
+# Financial Control API
+
+API para controle financeiro individual, permitindo gerenciamento de receitas, despesas, categorias e análises financeiras
+desenvolvida em Go, com autenticação JWT e integração com Google OAuth.
+
+
+---
+## Funcionalidades
+
+- **User** – gerenciamento de usuários
+- **Transaction** – lançamentos financeiros (receitas e despesas)
+- **Installment** – parcelamento de transações
+- **Category** – categorização de transações
+- **Auth** – autenticação e autorização (JWT + Google OAuth)
+- **Analytics** – dashboard com métricas financeiras
+
+---
+
+## Tecnologias
+
+* Go (Golang)
+* MySQL
+* JWT (JSON Web Token)
+* Google OAuth 2.0
+* Arquitetura em camadas (Handler, Service, Repository, Model, DTO, Mapper)
+
+---
+
+## Estrutura do projeto
+
+```
+/cmd                # Inicialização da aplicação (main.go)
+/internal
+  /database			# Conexão com banco de dados (connection.go) - contém arquivo 'seed.go' que serve para criar as categorias iniciais de sistema;
+  /features			# Local de cada feature desenvolvida, seja ela CRUD ou nao. Cada uma esta devidamente em camadas com (Handler, Service, Repository, Model, DTO)
+	/auth
+	/categories
+	/installments
+	/transaction
+	/user
+	/analytics
+  /middleware       # Middlewares (auth, etc)
+  /utils			# Funções helper que abrangem a aplicação toda (FormatDate, Errors, etc)
+  /router			# Arquivo de configuração de roteamento dos endpoints da aplicação 
+```
+
+---
+
+## Autenticação
+
+### Login tradicional
+
+* Email + senha
+* Retorna:
+
+  * JWT
+  * Dados do usuário
+  * Providers vinculados
+
+### Login com Google
+
+* OAuth 2.0
+* Cria usuário automaticamente se não existir
+
+### Vinculação de conta Google
+
+* Endpoint para vincular conta Google a um usuário existente
+* Regra:
+
+  * Email do Google deve ser igual ao email do usuário autenticado
+
+---
+
+## Arquitetura
+
+O projeto segue separação clara de responsabilidades:
+
+* **Handler**
+
+  * Recebe requisições HTTP
+  * Retorna respostas
+
+* **Service**
+
+  * Contém regras de negócio
+  * Orquestra lógica entre repositórios
+
+* **Repository**
+
+  * Acesso direto ao banco de dados
+  * Queries SQL
+  
+* **Model**
+
+  * Estrutura base de dados de cada feature
+  * Utilizado principalmente pelo Repository
+
+* **DTO**
+  * Data Transfer Object
+  * Estruturas utilizadas para comunicação entre camadas e entrada/saída da API
+
+---
+
+## Providers
+
+Tabela: `user_providers`
+
+Campos:
+
+* user_id
+* provider_name (ex: google)
+* provider_user_id
+
+Permite:
+
+* Login social
+* Vinculação de múltiplos providers por usuário
+
+---
+
+## MySQL
+
+- MySQL
+- Gerenciamento via HeidiSQL / MySQL Workbench
+
+As credenciais do banco não estão no código.
+Variáveis utilizadas:
+
+- DB_USER
+- DB_PASS
+
+Configuração localizada em:
+`internal/database/connection.go`
+
+---
+
+## Como rodar
+
+Utilizado também o swaggo; swagger no Go para melhor documentação da API.
+(Qualquer alteração no handler, deve rodar o comando do swaggo)
 
 //Comando para atualizar swagger depois de atualizações no código:
 swag init -g cmd/api/main.go --parseDependency --parseInternal 
 
 //Comando para rodar o programa:
 go run cmd/api/main.go
+
+
+
+```bash
+swag init -g cmd/api/main.go --parseDependency --parseInternal 
+go run cmd/api/main.go
+```
+
+---
+
+## Variáveis de ambiente
+
+A aplicação utiliza variáveis de ambiente para configuração:
+
+- DB_USER
+- DB_PASS
+- JWT_SECRET
+- GOOGLE_CLIENT_ID
+
+---
+
+## Licença
+
+Uso acadêmico / estudo
